@@ -1,47 +1,32 @@
 server:
-  port: 8084
+  port: 8083
 
 spring:
   application:
-    name: reservation-management-service
-
-  # PostgreSQL R2DBC
+    name: booking-service
   r2dbc:
-    url: r2dbc:postgresql://localhost:5433/reservation_management_db
-    username: postgres
-    password: carlosmanuel
-    pool:
-      initial-size: 10
-      max-size: 20
-      max-idle-time: 30m
+    url: r2dbc:mysql://localhost:3306/booking_db
+    username: root
+    password: root
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
 
-  sql:
-    init:
-      mode: always
-      platform: postgresql
-
-# JWT Configuration
-jwt:
-  secret: (la_misma_de_julian)
-  expiration: 86400000
-
-# Microservicios externos
-microservices:
-  user-service:
+services:
+  motel-management:
+    url: http://localhost:8084
+  user-management:
     url: http://localhost:8081
-    timeout: 5000
-  motel-service:
-    url: http://localhost:8083
-    timeout: 5000
+
+logging:
+  level:
+    root: INFO
+    com.ubik.bookingservice: DEBUG
+    io.r2dbc.mysql: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-
-logging:
-  level:
-    com.ubik.reservation: DEBUG
-    org.springframework.r2dbc: DEBUG
-    org.springframework.security: DEBUG
+        include: health,info
