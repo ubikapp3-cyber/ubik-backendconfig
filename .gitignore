@@ -73,6 +73,14 @@ application-*.yml
 application-*.properties
 !application.yml
 !application.properties
+# Allow test and dev profiles to be committed
+!application-test.yml
+!application-test.properties
+!application-dev.yml
+!application-dev.properties
+# Allow docker profile (already committed)
+!application-docker.yml
+!application-docker.properties
 
 ############################
 # 🔹 Node.js / Angular (frontend)
