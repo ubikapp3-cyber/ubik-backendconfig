@@ -1,6 +1,5 @@
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\GatewayApplication.java
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\application\config\GatewayConfig.java
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\application\filter\JwtAuthenticationFilter.java
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\application\config\SecurityConfig.java
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\infraestructure\adapter\out\jwt\JwtValidatorAdapter.java
-C:\Users\Usuario\00-Disco-D\022-ADSO\0000-PROYECTO_FORMATIVO\Ubik-App\microservicios\microreactivo\gateway\src\main\java\com\example\gateway\domain\port\out\JwtValidatorPort.java
+/home/runner/work/ubik-backendconfig/ubik-backendconfig/microservicios/microreactivo/gateway/src/main/java/com/example/gateway/filter/RequestLoggingFilter.java
+/home/runner/work/ubik-backendconfig/ubik-backendconfig/microservicios/microreactivo/gateway/src/main/java/com/example/gateway/application/config/SecurityConfig.java
+/home/runner/work/ubik-backendconfig/ubik-backendconfig/microservicios/microreactivo/gateway/src/main/java/com/example/gateway/application/filter/JwtAuthenticationFilter.java
+/home/runner/work/ubik-backendconfig/ubik-backendconfig/microservicios/microreactivo/gateway/src/main/java/com/example/gateway/filter/AuthorizationFilter.java
+/home/runner/work/ubik-backendconfig/ubik-backendconfig/microservicios/microreactivo/gateway/src/main/java/com/example/gateway/GatewayApplication.java
