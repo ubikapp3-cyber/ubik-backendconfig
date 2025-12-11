@@ -11,7 +11,7 @@
 ############################
 .idea/
 *.iml
-out/
+/out/
 *.ipr
 *.iws
 
@@ -52,7 +52,7 @@ logs/
 ############################
 target/
 build/
-out/
+/out/
 .gradle/
 .mvn/
 !gradle/wrapper/gradle-wrapper.jar
