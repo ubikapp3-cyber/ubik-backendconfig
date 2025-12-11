@@ -12,6 +12,7 @@
 
 -- Eliminar tablas si existen (para re-ejecución limpia)
 DROP TABLE IF EXISTS room_service CASCADE;
+DROP TABLE IF EXISTS room_image CASCADE;
 DROP TABLE IF EXISTS service CASCADE;
 DROP TABLE IF EXISTS room CASCADE;
 DROP TABLE IF EXISTS motel CASCADE;
@@ -48,6 +49,20 @@ CREATE TABLE room (
 -- Índices para room
 CREATE INDEX idx_room_motel ON room(motel_id);
 CREATE INDEX idx_room_available ON room(is_available);
+
+-- Tabla de imágenes de habitaciones
+CREATE TABLE room_image (
+                            id BIGSERIAL PRIMARY KEY,
+                            room_id BIGINT NOT NULL,
+                            image_url VARCHAR(500) NOT NULL,
+                            display_order INTEGER NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
+);
+
+-- Índices para room_image
+CREATE INDEX idx_room_image_room ON room_image(room_id);
+CREATE INDEX idx_room_image_order ON room_image(room_id, display_order);
 
 -- Tabla de servicios
 CREATE TABLE service (
