@@ -57,11 +57,27 @@ spring:
     password: carlosmanuel
 ```
 
+### Environment Variables
+
+For production or to override default values, use environment variables:
+
+- `R2DBC_URL`: R2DBC connection URL (default: r2dbc:postgresql://localhost:5432/motel_management_db)
+- `R2DBC_USERNAME`: Database username (default: postgres)
+- `R2DBC_PASSWORD`: Database password (default: carlosmanuel)
+
+Example:
+```bash
+export R2DBC_URL=r2dbc:postgresql://prod-server:5432/motel_db
+export R2DBC_USERNAME=myuser
+export R2DBC_PASSWORD=mypassword
+./mvnw spring-boot:run
+```
+
 ### Profiles
 
 - **default**: Uses local PostgreSQL (localhost:5432)
 - **docker**: Uses PostgreSQL in Docker container (postgres:5432)
-- **dev**: Development profile with debug logging
+- **dev**: Development profile with debug logging and environment variable support
 - **test**: Uses H2 in-memory database for testing
 
 To activate a profile:

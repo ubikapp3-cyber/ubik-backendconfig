@@ -6,10 +6,11 @@ spring:
     name: motel-management-service
 
   # PostgreSQL R2DBC Configuration for Development
+  # For production, use environment variables or external configuration
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/motel_management_db
-    username: postgres
-    password: carlosmanuel
+    url: ${R2DBC_URL:r2dbc:postgresql://localhost:5432/motel_management_db}
+    username: ${R2DBC_USERNAME:postgres}
+    password: ${R2DBC_PASSWORD:carlosmanuel}
     pool:
       initial-size: 10
       max-size: 20
