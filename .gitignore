@@ -81,6 +81,9 @@ application-*.properties
 # Allow docker profile (already committed)
 !application-docker.yml
 !application-docker.properties
+# Allow azure profile for Azure PostgreSQL configuration
+!application-azure.yml
+!application-azure.properties
 
 ############################
 # 🔹 Node.js / Angular (frontend)

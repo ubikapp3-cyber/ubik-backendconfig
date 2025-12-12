@@ -1,0 +1,64 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: motel-management-service
+
+  # Azure PostgreSQL R2DBC Configuration
+  # Uses environment variables for sensitive data
+  r2dbc:
+    url: ${R2DBC_URL:r2dbc:postgresql://localhost:5432/motel_management_db?sslmode=require}
+    username: ${R2DBC_USERNAME:postgres}
+    password: ${R2DBC_PASSWORD}
+    pool:
+      initial-size: 5
+      max-size: 10
+      max-idle-time: 30m
+      max-acquire-time: 3s
+      max-create-connection-time: 5s
+      validation-query: SELECT 1
+
+  # Disable schema initialization (already done by init script)
+  sql:
+    init:
+      mode: never
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
+# Actuator Configuration for Azure monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging configuration for Azure
+logging:
+  level:
+    com.ubik.usermanagement: INFO
+    org.springframework.r2dbc: WARN
+    io.r2dbc.postgresql: WARN
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
