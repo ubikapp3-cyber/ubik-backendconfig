@@ -22,6 +22,14 @@ spring:
       mode: never  # El script SQL se ejecuta desde docker-entrypoint-initdb.d
       platform: postgresql
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 # Configuración de actuator para health checks
 management:
   endpoints:
