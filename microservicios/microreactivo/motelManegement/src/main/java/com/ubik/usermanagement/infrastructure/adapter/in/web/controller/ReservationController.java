@@ -6,6 +6,11 @@ import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.CreateReservati
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.ReservationResponse;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.UpdateReservationRequest;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.mapper.ReservationDtoMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,7 @@ import java.time.LocalDateTime;
  */
 @RestController
 @RequestMapping("/api/reservations")
+@Tag(name = "Reservations", description = "API para gestión de reservaciones")
 public class ReservationController {
 
     private final ReservationUseCasePort reservationUseCasePort;
@@ -38,6 +44,11 @@ public class ReservationController {
      * Crea una nueva reserva
      * POST /api/reservations
      */
+    @Operation(summary = "Crear una nueva reserva", description = "Crea una nueva reserva de habitación")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Reserva creada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ReservationResponse> createReservation(@Valid @RequestBody CreateReservationRequest request) {
@@ -51,8 +62,14 @@ public class ReservationController {
      * Obtiene una reserva por ID
      * GET /api/reservations/{id}
      */
+    @Operation(summary = "Obtener reserva por ID", description = "Obtiene la información detallada de una reserva específica")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reserva encontrada"),
+            @ApiResponse(responseCode = "404", description = "Reserva no encontrada")
+    })
     @GetMapping("/{id}")
-    public Mono<ReservationResponse> getReservationById(@PathVariable Long id) {
+    public Mono<ReservationResponse> getReservationById(
+            @Parameter(description = "ID de la reserva", required = true) @PathVariable Long id) {
         return reservationUseCasePort.getReservationById(id)
                 .map(reservationDtoMapper::toResponse);
     }
@@ -61,6 +78,8 @@ public class ReservationController {
      * Obtiene todas las reservas
      * GET /api/reservations
      */
+    @Operation(summary = "Listar todas las reservas", description = "Obtiene un listado de todas las reservas registradas")
+    @ApiResponse(responseCode = "200", description = "Listado de reservas obtenido exitosamente")
     @GetMapping
     public Flux<ReservationResponse> getAllReservations() {
         return reservationUseCasePort.getAllReservations()
@@ -144,8 +163,11 @@ public class ReservationController {
      * Confirma una reserva
      * PATCH /api/reservations/{id}/confirm
      */
+    @Operation(summary = "Confirmar reserva", description = "Cambia el estado de una reserva a confirmada")
+    @ApiResponse(responseCode = "200", description = "Reserva confirmada exitosamente")
     @PatchMapping("/{id}/confirm")
-    public Mono<ReservationResponse> confirmReservation(@PathVariable Long id) {
+    public Mono<ReservationResponse> confirmReservation(
+            @Parameter(description = "ID de la reserva", required = true) @PathVariable Long id) {
         return reservationUseCasePort.confirmReservation(id)
                 .map(reservationDtoMapper::toResponse);
     }

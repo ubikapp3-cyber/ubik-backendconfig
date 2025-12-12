@@ -21,6 +21,14 @@ spring:
       mode: always
       platform: postgresql
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 logging:
   level:
     com.ubik.usermanagement: DEBUG

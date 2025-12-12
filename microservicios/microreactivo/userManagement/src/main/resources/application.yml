@@ -19,6 +19,14 @@ spring:
     bcrypt:
       strength: 12  # Fuerza del hash para contraseñas
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 jwt:
   secret: mySecretKey1234567890abcdef1234567890abcdef
   expiration: 86400000 # 1 día en milisegundos

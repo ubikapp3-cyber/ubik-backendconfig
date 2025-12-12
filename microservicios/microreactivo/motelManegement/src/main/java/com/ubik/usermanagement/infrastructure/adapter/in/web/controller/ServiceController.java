@@ -5,6 +5,11 @@ import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.CreateServiceRe
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.ServiceResponse;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.UpdateServiceRequest;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.mapper.ServiceDtoMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +22,7 @@ import reactor.core.publisher.Mono;
  */
 @RestController
 @RequestMapping("/api/services")
+@Tag(name = "Services", description = "API para gestión de servicios de habitaciones")
 public class ServiceController {
 
     private final ServiceUseCasePort serviceUseCasePort;
@@ -31,6 +37,11 @@ public class ServiceController {
      * Crea un nuevo servicio
      * POST /api/services
      */
+    @Operation(summary = "Crear un nuevo servicio", description = "Crea un nuevo servicio disponible para habitaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Servicio creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ServiceResponse> createService(@Valid @RequestBody CreateServiceRequest request) {
@@ -107,11 +118,13 @@ public class ServiceController {
      * Asocia un servicio a una habitación
      * POST /api/services/room/{roomId}/service/{serviceId}
      */
+    @Operation(summary = "Asociar servicio a habitación", description = "Asocia un servicio existente a una habitación")
+    @ApiResponse(responseCode = "201", description = "Servicio asociado exitosamente")
     @PostMapping("/room/{roomId}/service/{serviceId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> addServiceToRoom(
-            @PathVariable Long roomId,
-            @PathVariable Long serviceId) {
+            @Parameter(description = "ID de la habitación", required = true) @PathVariable Long roomId,
+            @Parameter(description = "ID del servicio", required = true) @PathVariable Long serviceId) {
         return serviceUseCasePort.addServiceToRoom(roomId, serviceId);
     }
 

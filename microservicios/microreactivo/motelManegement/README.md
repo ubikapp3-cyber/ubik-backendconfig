@@ -144,6 +144,18 @@ If PostgreSQL connection is refused:
 
 Once running, the application is available at: `http://localhost:8084`
 
+### Swagger Documentation
+
+API documentation is available through Swagger UI:
+- **Swagger UI**: `http://localhost:8084/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8084/api-docs`
+
+The Swagger interface provides interactive documentation where you can:
+- View all available endpoints
+- Test API calls directly from the browser
+- See request/response schemas
+- Understand required parameters and data types
+
 ### Actuator Endpoints
 
 - Health: `http://localhost:8084/actuator/health`
