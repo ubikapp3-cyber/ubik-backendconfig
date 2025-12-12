@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Button01 } from '../../components/button-01/button-01';
 import { RegisterService } from './services/register.service';
+import { validateFileUpload } from './utils/validation.utils';
 import {
   RegistrationType,
   EstablishmentStep,
@@ -278,6 +279,15 @@ export class RegisterComponent {
     }
 
     const file = input.files[0];
+    
+    // Validate file before accepting
+    const validationError = validateFileUpload(file, 'El documento');
+    if (validationError) {
+      this.errors.set([{ field: `${type}IdImage`, message: validationError }]);
+      input.value = ''; // Clear the input
+      return;
+    }
+
     const currentOwner = this.establishmentOwner();
 
     // Update the appropriate field
@@ -286,6 +296,10 @@ export class RegisterComponent {
     } else {
       this.establishmentOwner.set({ ...currentOwner, backIdImage: file });
     }
+    
+    // Clear any previous errors for this field
+    const currentErrors = this.errors();
+    this.errors.set(currentErrors.filter(e => e.field !== `${type}IdImage`));
   }
 
   /**
@@ -301,11 +315,35 @@ export class RegisterComponent {
     }
 
     const newFiles = Array.from(input.files);
-    const currentImages = this.establishmentImages();
+    const validationErrors: ValidationError[] = [];
+    const validFiles: File[] = [];
 
+    // Validate each file
+    for (const file of newFiles) {
+      const error = validateFileUpload(file, 'La imagen');
+      if (error) {
+        validationErrors.push({ field: 'images', message: `${file.name}: ${error}` });
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    // Show validation errors if any
+    if (validationErrors.length > 0) {
+      this.errors.set(validationErrors);
+      input.value = ''; // Clear the input
+      return;
+    }
+
+    // Add valid files to the list
+    const currentImages = this.establishmentImages();
     this.establishmentImages.set({
-      images: [...currentImages.images, ...newFiles],
+      images: [...currentImages.images, ...validFiles],
     });
+    
+    // Clear any previous errors
+    const currentErrors = this.errors();
+    this.errors.set(currentErrors.filter(e => e.field !== 'images'));
   }
 
   /**

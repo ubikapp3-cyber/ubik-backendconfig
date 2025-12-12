@@ -109,7 +109,16 @@ export function validateBirthDate(day: string, month: string, year: string): str
   }
 
   // Check if user is at least 18 years old
-  const age = currentYear - yearNum;
+  const today = new Date();
+  const birthDate = new Date(yearNum, monthNum - 1, dayNum);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  // Adjust age if birthday hasn't occurred yet this year
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
   if (age < 18) {
     return 'Debe ser mayor de 18 años';
   }

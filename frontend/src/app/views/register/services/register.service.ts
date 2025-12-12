@@ -134,7 +134,7 @@ export class RegisterService {
       },
       {
         field: 'rues',
-        validator: () => validateRequiredField(location.rues || '', 'El RUE$'),
+        validator: () => validateRequiredField(location.rues || '', 'El RUES'),
       },
       {
         field: 'rnt',
