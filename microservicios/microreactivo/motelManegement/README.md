@@ -8,6 +8,30 @@ A reactive microservice for motel management using Spring Boot 3.5.3, Spring Web
 - Maven 3.6+
 - PostgreSQL 15+ (or use Docker Compose)
 
+## 🚀 Quick Start
+
+### For Azure Database for PostgreSQL
+
+If you're deploying to Azure, we have a dedicated guide and automated scripts:
+
+**📘 [Azure PostgreSQL Setup Guide →](README-AZURE.md)**
+
+Quick setup:
+```bash
+# Interactive configuration wizard
+./azure-quickstart.sh
+
+# Or manual setup
+cp .env.azure.template .env.azure
+# Edit .env.azure with your Azure credentials
+source .env.azure
+./init-postgresql-azure.sh
+```
+
+### For Local Development
+
+Continue reading below for local PostgreSQL setup with Docker.
+
 ## Running the Application
 
 ### Option 1: Using Maven (Recommended)
@@ -78,6 +102,7 @@ export R2DBC_PASSWORD=mypassword
 - **default**: Uses local PostgreSQL (localhost:5432)
 - **docker**: Uses PostgreSQL in Docker container (postgres:5432)
 - **dev**: Development profile with debug logging and environment variable support
+- **azure**: Azure Database for PostgreSQL with SSL support (see [README-AZURE.md](README-AZURE.md))
 - **test**: Uses H2 in-memory database for testing
 
 To activate a profile:
@@ -87,6 +112,15 @@ To activate a profile:
 ```
 
 Or in IntelliJ: Run -> Edit Configurations -> Add `-Dspring.profiles.active=dev` to VM options
+
+For Azure deployment:
+```bash
+# Load Azure environment variables
+source .env.azure
+
+# Run with Azure profile
+./mvnw spring-boot:run -Dspring-boot.run.profiles=azure
+```
 
 ## Database Setup
 
