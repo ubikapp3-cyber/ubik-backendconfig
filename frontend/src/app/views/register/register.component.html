@@ -1,0 +1,445 @@
+<!-- Registration Type Selection -->
+<div *ngIf="!registrationType()" class="min-h-screen flex items-center justify-center px-5 text-white">
+  <div class="w-full max-w-md text-center">
+    <h1 class="text-4xl font-bold mb-12 tracking-wider">CREAR CUENTA</h1>
+
+    <!-- Selection Buttons -->
+    <div class="flex gap-4 mb-8">
+      <app-button-01
+        text="Establecimiento"
+        iconLeft="fas fa-home"
+        iconRight="fas fa-arrow-right"
+        (click)="selectRegistrationType(RegistrationType.ESTABLISHMENT)"
+        class="flex-1">
+      </app-button-01>
+
+      <app-button-01
+        text="Cliente"
+        iconLeft="fas fa-user"
+        iconRight="fas fa-arrow-right"
+        (click)="selectRegistrationType(RegistrationType.CLIENT)"
+        class="flex-1">
+      </app-button-01>
+    </div>
+
+    <!-- Privacy Message -->
+    <div class="flex items-start gap-3 text-left text-sm text-gray-300 bg-black bg-opacity-20 rounded-lg p-4">
+      <i class="fas fa-lock text-lg mt-0.5 flex-shrink-0"></i>
+      <p>
+        Tu información personal será tratada con estricta confidencialidad y protegida conforme a la ley de protección de datos vigente.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Client Registration -->
+<div *ngIf="registrationType() === RegistrationType.CLIENT" class="min-h-screen flex items-center justify-center px-5 text-white">
+  <div class="w-full max-w-md">
+    <h1 class="text-4xl font-bold mb-8 tracking-wider text-center">CUENTA CLIENTE</h1>
+
+    <!-- Progress Bar -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm">10%</span>
+      </div>
+      <div class="w-full bg-gray-700 rounded-full h-2">
+        <div class="bg-white h-2 rounded-full" style="width: 10%"></div>
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    <div *ngIf="errors().length > 0" class="mb-4 p-4 bg-red-500 bg-opacity-20 rounded-lg">
+      <p *ngFor="let error of errors()" class="text-sm text-red-300">
+        {{ error.message }}
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form class="flex flex-col gap-5" (ngSubmit)="submitClientRegistration()">
+      <div>
+        <label class="mb-1 text-white text-sm">Nombre completo</label>
+        <input
+          type="text"
+          placeholder="Ingrese su nombre completo"
+          [value]="clientData().fullName"
+          (input)="updateClientField('fullName', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
+
+      <div>
+        <label class="mb-1 text-white text-sm">Correo electrónico</label>
+        <input
+          type="email"
+          placeholder="Ingrese su correo"
+          [value]="clientData().email"
+          (input)="updateClientField('email', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
+
+      <!-- Birth Date -->
+      <div>
+        <label class="mb-1 text-white text-sm block">Fecha de nacimiento</label>
+        <div class="flex gap-3">
+          <input
+            type="text"
+            placeholder="DD"
+            maxlength="2"
+            [value]="clientData().birthDay"
+            (input)="updateClientField('birthDay', $any($event.target).value)"
+            class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
+          <input
+            type="text"
+            placeholder="MM"
+            maxlength="2"
+            [value]="clientData().birthMonth"
+            (input)="updateClientField('birthMonth', $any($event.target).value)"
+            class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
+          <input
+            type="text"
+            placeholder="AAAA"
+            maxlength="4"
+            [value]="clientData().birthYear"
+            (input)="updateClientField('birthYear', $any($event.target).value)"
+            class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1 text-white text-sm">Contraseña</label>
+        <input
+          type="password"
+          placeholder="Ingrese su contraseña"
+          [value]="clientData().password"
+          (input)="updateClientField('password', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
+
+      <div>
+        <label class="mb-1 text-white text-sm">Confirmar contraseña</label>
+        <input
+          type="password"
+          placeholder="Confirme su contraseña"
+          [value]="clientData().confirmPassword"
+          (input)="updateClientField('confirmPassword', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="flex gap-4 mt-4">
+        <app-button-01
+          text="Volver"
+          (click)="goBackToSelection()"
+          type="button"
+          class="flex-1">
+        </app-button-01>
+
+        <app-button-01
+          text="Registrar"
+          type="submit"
+          class="flex-1">
+        </app-button-01>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Establishment Registration -->
+<div *ngIf="registrationType() === RegistrationType.ESTABLISHMENT" class="min-h-screen flex items-center justify-center px-5 text-white">
+  <div class="w-full max-w-2xl">
+    <h1 class="text-4xl font-bold mb-8 tracking-wider text-center">CUENTA ESTABLECIMIENTO</h1>
+
+    <!-- Progress Bar -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm">{{ getProgressPercentage() }}%</span>
+      </div>
+      <div class="w-full bg-gray-700 rounded-full h-2">
+        <div class="bg-red-600 h-2 rounded-full transition-all" [style.width.%]="getProgressPercentage()"></div>
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    <div *ngIf="errors().length > 0" class="mb-4 p-4 bg-red-500 bg-opacity-20 rounded-lg">
+      <p *ngFor="let error of errors()" class="text-sm text-red-300">
+        {{ error.message }}
+      </p>
+    </div>
+
+    <!-- Step 1: Owner Info -->
+    <div *ngIf="currentStep() === EstablishmentStep.INFO">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column - Form -->
+        <div class="flex flex-col gap-5">
+          <div>
+            <label class="mb-1 text-white text-sm">Nombre del dueño del establecimiento</label>
+            <input
+              type="text"
+              placeholder="Ingrese el nombre completo"
+              [value]="establishmentOwner().ownerName"
+              (input)="updateOwnerField('ownerName', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+
+          <div>
+            <label class="mb-1 text-white text-sm">Correo del dueño del establecimiento</label>
+            <input
+              type="email"
+              placeholder="Ingrese el correo"
+              [value]="establishmentOwner().ownerEmail"
+              (input)="updateOwnerField('ownerEmail', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+
+          <div>
+            <label class="mb-1 text-white text-sm">Número de identificación CC</label>
+            <input
+              type="text"
+              placeholder="Ingrese el número de CC"
+              [value]="establishmentOwner().identificationNumber"
+              (input)="updateOwnerField('identificationNumber', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+        </div>
+
+        <!-- Right Column - Image Uploads -->
+        <div class="flex flex-col gap-5">
+          <div>
+            <label class="mb-2 text-white text-sm block text-right">Foto frontal del documento de identidad CC</label>
+            <div class="bg-white rounded-lg p-8 flex items-center justify-center h-32 cursor-pointer hover:bg-gray-100 transition-colors">
+              <label class="cursor-pointer w-full h-full flex items-center justify-center">
+                <div class="text-center text-gray-400">
+                  <i class="fas fa-image text-5xl mb-2"></i>
+                  <p *ngIf="establishmentOwner().frontIdImage" class="text-xs mt-2 text-green-600">
+                    {{ establishmentOwner().frontIdImage?.name }}
+                  </p>
+                </div>
+                <input type="file" accept="image/*" (change)="handleOwnerDocumentUpload($event, 'front')" class="hidden" />
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="mb-2 text-white text-sm block text-right">Foto Trasera del documento de identidad CC</label>
+            <div class="bg-white rounded-lg p-8 flex items-center justify-center h-32 cursor-pointer hover:bg-gray-100 transition-colors">
+              <label class="cursor-pointer w-full h-full flex items-center justify-center">
+                <div class="text-center text-gray-400">
+                  <i class="fas fa-image text-5xl mb-2"></i>
+                  <p *ngIf="establishmentOwner().backIdImage" class="text-xs mt-2 text-green-600">
+                    {{ establishmentOwner().backIdImage?.name }}
+                  </p>
+                </div>
+                <input type="file" accept="image/*" (change)="handleOwnerDocumentUpload($event, 'back')" class="hidden" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Location Info -->
+    <div *ngIf="currentStep() === EstablishmentStep.LOCATION">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="flex flex-col gap-5">
+          <div>
+            <label class="mb-1 text-white text-sm">Nombre del establecimiento</label>
+            <input
+              type="text"
+              placeholder="Ingrese el nombre"
+              [value]="establishmentLocation().establishmentName"
+              (input)="updateLocationField('establishmentName', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+
+          <div>
+            <label class="mb-1 text-white text-sm">Correo del establecimiento</label>
+            <input
+              type="email"
+              placeholder="Ingrese el correo"
+              [value]="establishmentLocation().establishmentEmail"
+              (input)="updateLocationField('establishmentEmail', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+
+          <!-- RUE$ and RNT -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="flex flex-col">
+              <label class="mb-1 text-white text-sm">RUE$</label>
+              <input
+                type="text"
+                [value]="establishmentLocation().rues"
+                (input)="updateLocationField('rues', $any($event.target).value)"
+                class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="mb-1 text-white text-sm">RNT</label>
+              <input
+                type="text"
+                [value]="establishmentLocation().rnt"
+                (input)="updateLocationField('rnt', $any($event.target).value)"
+                class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+            </div>
+          </div>
+
+          <div>
+            <label class="mb-1 text-white text-sm">Contraseña</label>
+            <input
+              type="password"
+              placeholder=""
+              [value]="establishmentLocation().password"
+              (input)="updateLocationField('password', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="flex flex-col gap-5">
+          <!-- Country -->
+          <div class="flex flex-col">
+            <label class="mb-1 text-white text-sm">Ubicación</label>
+            <div class="relative">
+              <select
+                [value]="establishmentLocation().country"
+                (change)="updateLocationField('country', $any($event.target).value)"
+                class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
+                <option value="">País</option>
+                <option value="colombia">Colombia</option>
+                <option value="otro">Otro</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Department -->
+          <div class="flex flex-col">
+            <label class="mb-1 text-white text-sm">Departamento</label>
+            <div class="relative">
+              <select
+                [value]="establishmentLocation().department"
+                (change)="updateLocationField('department', $any($event.target).value)"
+                class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
+                <option value="">Seleccione</option>
+                <option value="antioquia">Antioquia</option>
+                <option value="cundinamarca">Cundinamarca</option>
+                <option value="valle">Valle del Cauca</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Municipality -->
+          <div class="flex flex-col">
+            <label class="mb-1 text-white text-sm">Municipio</label>
+            <div class="relative">
+              <select
+                [value]="establishmentLocation().municipality"
+                (change)="updateLocationField('municipality', $any($event.target).value)"
+                class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
+                <option value="">Seleccione</option>
+                <option value="medellin">Medellín</option>
+                <option value="bogota">Bogotá</option>
+                <option value="cali">Cali</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <div>
+            <label class="mb-1 text-white text-sm">Confirma contraseña</label>
+            <input
+              type="password"
+              placeholder=""
+              [value]="establishmentLocation().confirmPassword"
+              (input)="updateLocationField('confirmPassword', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Images -->
+    <div *ngIf="currentStep() === EstablishmentStep.IMAGES">
+      <p class="text-center text-gray-300 mb-8 text-sm">
+        Subir imágenes y videos reales del sitio actualmente
+      </p>
+
+      <div class="grid grid-cols-2 gap-6 mb-8">
+        <!-- Upload Area 1 -->
+        <div class="bg-white rounded-2xl p-12 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors group min-h-[200px]">
+          <label class="cursor-pointer w-full h-full flex items-center justify-center">
+            <div class="text-center">
+              <div class="bg-gray-800 rounded-xl p-8 inline-block group-hover:scale-105 transition-transform">
+                <i class="fas fa-image text-white text-5xl"></i>
+              </div>
+            </div>
+            <input type="file" accept="image/*,video/*" multiple (change)="handleEstablishmentImagesUpload($event)" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Upload Area 2 -->
+        <div class="bg-white rounded-2xl p-12 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors group min-h-[200px]">
+          <label class="cursor-pointer w-full h-full flex items-center justify-center">
+            <div class="text-center">
+              <div class="bg-gray-800 rounded-xl p-8 inline-block group-hover:scale-105 transition-transform">
+                <i class="fas fa-image text-white text-5xl"></i>
+              </div>
+            </div>
+            <input type="file" accept="image/*,video/*" multiple (change)="handleEstablishmentImagesUpload($event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <div *ngIf="establishmentImages().images.length > 0" class="mb-4 text-sm text-gray-300">
+        <p>{{ establishmentImages().images.length }} archivo(s) seleccionado(s)</p>
+      </div>
+    </div>
+
+    <!-- Step 4: Terms and Conditions -->
+    <div *ngIf="currentStep() === EstablishmentStep.CONFIRM">
+      <h2 class="text-2xl font-bold mb-6 text-center">Terminos y condiciones</h2>
+
+      <div class="bg-black bg-opacity-30 rounded-2xl p-6 mb-8 max-h-[400px] overflow-y-auto text-sm leading-relaxed">
+        <p class="text-gray-200 mb-4">
+          Los párrafos cortos son aquellos párrafos que tienen entre tres y seis líneas. Si bien existen párrafos más extensos, que pueden llegar hasta las veinte líneas, lo recomendable es que un párrafo no tenga más de cuatro o cinco oraciones.
+        </p>
+        <p class="text-gray-200 mb-4">
+          Un párrafo es una unidad de un texto compuesta por una o varias oraciones, que comienza con una mayúscula y que termina con un punto y aparte. Los textos se organizan de manera tal que cada párrafo trata sobre una idea central. Generalmente, la primera oración de cada párrafo suele explicar cuál es el punto principal.
+        </p>
+        <p class="text-gray-200 mb-4">
+          Los párrafos cortos son aquellos párrafos que tienen entre tres y seis líneas. Si bien existen párrafos más extensos, que pueden llegar hasta las veinte líneas, lo recomendable es que un párrafo no tenga más de cuatro o cinco oraciones.
+        </p>
+        <p class="text-gray-200">
+          Un párrafo es una unidad de un texto compuesta por una o varias oraciones, que comienza con una mayúscula y que termina con un punto y aparte. Los textos se organizan de manera tal que cada párrafo trata sobre una idea central.
+        </p>
+      </div>
+
+      <div class="mb-6">
+        <label class="flex items-center gap-3 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="acceptedTerms()"
+            (change)="acceptedTerms.set($any($event.target).checked)"
+            class="w-5 h-5 rounded border-2 border-white"
+          />
+          <span>Acepto los términos y condiciones</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex gap-4 mt-8">
+      <app-button-01
+        text="Volver"
+        (click)="previousEstablishmentStep()"
+        class="flex-1">
+      </app-button-01>
+
+      <app-button-01
+        text="Siguiente"
+        (click)="nextEstablishmentStep()"
+        class="flex-1">
+      </app-button-01>
+    </div>
+  </div>
+</div>
