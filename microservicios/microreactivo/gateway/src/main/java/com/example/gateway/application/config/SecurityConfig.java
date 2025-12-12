@@ -26,6 +26,9 @@ public class SecurityConfig {
                         .pathMatchers("/api/auth/reset-password-request").permitAll()
                         .pathMatchers("/api/auth/reset-password").permitAll()
 
+                        // ---- SWAGGER/OPENAPI ----
+                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+
                         // ---- ENDPOINTS PROTEGIDOS ----
                         .pathMatchers(HttpMethod.GET, "/api/user").authenticated()
                         .pathMatchers(HttpMethod.PUT, "/api/user").authenticated()
