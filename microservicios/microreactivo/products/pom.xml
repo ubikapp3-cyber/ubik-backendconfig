@@ -27,6 +27,13 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <!-- SpringDoc OpenAPI para documentación Swagger -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+      <version>2.3.0</version>
+    </dependency>
+
     <!-- Tests con H2 R2DBC -->
     <dependency>
       <groupId>io.r2dbc</groupId>
