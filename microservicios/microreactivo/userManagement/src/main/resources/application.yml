@@ -22,3 +22,13 @@ spring:
 jwt:
   secret: mySecretKey1234567890abcdef1234567890abcdef
   expiration: 86400000 # 1 día en milisegundos
+
+# OpenAPI/Swagger Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: true
