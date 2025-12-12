@@ -148,7 +148,7 @@ Once running, the application is available at: `http://localhost:8084`
 
 API documentation is available through Swagger UI:
 - **Swagger UI**: `http://localhost:8084/swagger-ui.html`
-- **OpenAPI JSON**: `http://localhost:8084/api-docs`
+- **OpenAPI JSON**: `http://localhost:8084/v3/api-docs`
 
 The Swagger interface provides interactive documentation where you can:
 - View all available endpoints
