@@ -7,6 +7,7 @@ spring:
     init:
       mode: always
       platform: h2
+      schema-locations: classpath:schema-h2.sql
 
 server:
   port: 0
