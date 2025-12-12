@@ -56,21 +56,25 @@
 
     <!-- Form -->
     <form class="flex flex-col gap-5" (ngSubmit)="submitClientRegistration()">
-      <app-input
-        label="Nombre completo"
-        placeholder="Ingrese su nombre completo"
-        type="text"
-        [(ngModel)]="clientData().fullName"
-        name="fullName">
-      </app-input>
+      <div>
+        <label class="mb-1 text-white text-sm">Nombre completo</label>
+        <input
+          type="text"
+          placeholder="Ingrese su nombre completo"
+          [value]="clientData().fullName"
+          (input)="updateClientField('fullName', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
 
-      <app-input
-        label="Correo electrónico"
-        placeholder="Ingrese su correo"
-        type="email"
-        [(ngModel)]="clientData().email"
-        name="email">
-      </app-input>
+      <div>
+        <label class="mb-1 text-white text-sm">Correo electrónico</label>
+        <input
+          type="email"
+          placeholder="Ingrese su correo"
+          [value]="clientData().email"
+          (input)="updateClientField('email', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
 
       <!-- Birth Date -->
       <div>
@@ -80,41 +84,45 @@
             type="text"
             placeholder="DD"
             maxlength="2"
-            [(ngModel)]="clientData().birthDay"
-            name="birthDay"
+            [value]="clientData().birthDay"
+            (input)="updateClientField('birthDay', $any($event.target).value)"
             class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
           <input
             type="text"
             placeholder="MM"
             maxlength="2"
-            [(ngModel)]="clientData().birthMonth"
-            name="birthMonth"
+            [value]="clientData().birthMonth"
+            (input)="updateClientField('birthMonth', $any($event.target).value)"
             class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
           <input
             type="text"
             placeholder="AAAA"
             maxlength="4"
-            [(ngModel)]="clientData().birthYear"
-            name="birthYear"
+            [value]="clientData().birthYear"
+            (input)="updateClientField('birthYear', $any($event.target).value)"
             class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white text-center" />
         </div>
       </div>
 
-      <app-input
-        label="Contraseña"
-        placeholder="Ingrese su contraseña"
-        type="password"
-        [(ngModel)]="clientData().password"
-        name="password">
-      </app-input>
+      <div>
+        <label class="mb-1 text-white text-sm">Contraseña</label>
+        <input
+          type="password"
+          placeholder="Ingrese su contraseña"
+          [value]="clientData().password"
+          (input)="updateClientField('password', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
 
-      <app-input
-        label="Confirmar contraseña"
-        placeholder="Confirme su contraseña"
-        type="password"
-        [(ngModel)]="clientData().confirmPassword"
-        name="confirmPassword">
-      </app-input>
+      <div>
+        <label class="mb-1 text-white text-sm">Confirmar contraseña</label>
+        <input
+          type="password"
+          placeholder="Confirme su contraseña"
+          [value]="clientData().confirmPassword"
+          (input)="updateClientField('confirmPassword', $any($event.target).value)"
+          class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+      </div>
 
       <!-- Navigation Buttons -->
       <div class="flex gap-4 mt-4">
@@ -162,29 +170,35 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Left Column - Form -->
         <div class="flex flex-col gap-5">
-          <app-input
-            label="Nombre del dueño del establecimiento"
-            placeholder="Ingrese el nombre completo"
-            type="text"
-            [(ngModel)]="establishmentOwner().ownerName"
-            name="ownerName">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Nombre del dueño del establecimiento</label>
+            <input
+              type="text"
+              placeholder="Ingrese el nombre completo"
+              [value]="establishmentOwner().ownerName"
+              (input)="updateOwnerField('ownerName', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
 
-          <app-input
-            label="Correo del dueño del establecimiento"
-            placeholder="Ingrese el correo"
-            type="email"
-            [(ngModel)]="establishmentOwner().ownerEmail"
-            name="ownerEmail">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Correo del dueño del establecimiento</label>
+            <input
+              type="email"
+              placeholder="Ingrese el correo"
+              [value]="establishmentOwner().ownerEmail"
+              (input)="updateOwnerField('ownerEmail', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
 
-          <app-input
-            label="Numero De identificación CC"
-            placeholder="Ingrese el número de CC"
-            type="text"
-            [(ngModel)]="establishmentOwner().identificationNumber"
-            name="identificationNumber">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Numero De identificación CC</label>
+            <input
+              type="text"
+              placeholder="Ingrese el número de CC"
+              [value]="establishmentOwner().identificationNumber"
+              (input)="updateOwnerField('identificationNumber', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
         </div>
 
         <!-- Right Column - Image Uploads -->
@@ -227,21 +241,25 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Left Column -->
         <div class="flex flex-col gap-5">
-          <app-input
-            label="Nombre del establecimiento"
-            placeholder="Ingrese el nombre"
-            type="text"
-            [(ngModel)]="establishmentLocation().establishmentName"
-            name="establishmentName">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Nombre del establecimiento</label>
+            <input
+              type="text"
+              placeholder="Ingrese el nombre"
+              [value]="establishmentLocation().establishmentName"
+              (input)="updateLocationField('establishmentName', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
 
-          <app-input
-            label="Correo del establecimiento"
-            placeholder="Ingrese el correo"
-            type="email"
-            [(ngModel)]="establishmentLocation().establishmentEmail"
-            name="establishmentEmail">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Correo del establecimiento</label>
+            <input
+              type="email"
+              placeholder="Ingrese el correo"
+              [value]="establishmentLocation().establishmentEmail"
+              (input)="updateLocationField('establishmentEmail', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
 
           <!-- RUE$ and RNT -->
           <div class="grid grid-cols-2 gap-3">
@@ -249,8 +267,8 @@
               <label class="mb-1 text-white text-sm">RUE$</label>
               <input
                 type="text"
-                [(ngModel)]="establishmentLocation().rues"
-                name="rues"
+                [value]="establishmentLocation().rues"
+                (input)="updateLocationField('rues', $any($event.target).value)"
                 class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
             </div>
 
@@ -258,19 +276,21 @@
               <label class="mb-1 text-white text-sm">RNT</label>
               <input
                 type="text"
-                [(ngModel)]="establishmentLocation().rnt"
-                name="rnt"
+                [value]="establishmentLocation().rnt"
+                (input)="updateLocationField('rnt', $any($event.target).value)"
                 class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
             </div>
           </div>
 
-          <app-input
-            label="Contraseña"
-            placeholder=""
-            type="password"
-            [(ngModel)]="establishmentLocation().password"
-            name="password">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Contraseña</label>
+            <input
+              type="password"
+              placeholder=""
+              [value]="establishmentLocation().password"
+              (input)="updateLocationField('password', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
         </div>
 
         <!-- Right Column -->
@@ -280,8 +300,8 @@
             <label class="mb-1 text-white text-sm">Ubicación</label>
             <div class="relative">
               <select
-                [(ngModel)]="establishmentLocation().country"
-                name="country"
+                [value]="establishmentLocation().country"
+                (change)="updateLocationField('country', $any($event.target).value)"
                 class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
                 <option value="">País</option>
                 <option value="colombia">Colombia</option>
@@ -296,8 +316,8 @@
             <label class="mb-1 text-white text-sm">Departamento</label>
             <div class="relative">
               <select
-                [(ngModel)]="establishmentLocation().department"
-                name="department"
+                [value]="establishmentLocation().department"
+                (change)="updateLocationField('department', $any($event.target).value)"
                 class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
                 <option value="">Seleccione</option>
                 <option value="antioquia">Antioquia</option>
@@ -313,8 +333,8 @@
             <label class="mb-1 text-white text-sm">Municipio</label>
             <div class="relative">
               <select
-                [(ngModel)]="establishmentLocation().municipality"
-                name="municipality"
+                [value]="establishmentLocation().municipality"
+                (change)="updateLocationField('municipality', $any($event.target).value)"
                 class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white appearance-none pr-10">
                 <option value="">Seleccione</option>
                 <option value="medellin">Medellín</option>
@@ -325,13 +345,15 @@
             </div>
           </div>
 
-          <app-input
-            label="Confirma contraseña"
-            placeholder=""
-            type="password"
-            [(ngModel)]="establishmentLocation().confirmPassword"
-            name="confirmPassword">
-          </app-input>
+          <div>
+            <label class="mb-1 text-white text-sm">Confirma contraseña</label>
+            <input
+              type="password"
+              placeholder=""
+              [value]="establishmentLocation().confirmPassword"
+              (input)="updateLocationField('confirmPassword', $any($event.target).value)"
+              class="rounded-full p-3 text-black focus:outline-none focus:ring-2 focus:ring-red-600 w-full bg-white" />
+          </div>
         </div>
       </div>
     </div>
@@ -396,8 +418,8 @@
         <label class="flex items-center gap-3 text-sm cursor-pointer">
           <input
             type="checkbox"
-            [(ngModel)]="acceptedTerms"
-            name="acceptedTerms"
+            [checked]="acceptedTerms()"
+            (change)="acceptedTerms.set($any($event.target).checked)"
             class="w-5 h-5 rounded border-2 border-white"
           />
           <span>Acepto los términos y condiciones</span>

@@ -1,8 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Button01 } from '../../components/button-01/button-01';
-import { Inputcomponent } from '../../components/input/input';
 import { RegisterService } from './services/register.service';
 import {
   RegistrationType,
@@ -18,7 +16,7 @@ import {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, Button01, Inputcomponent],
+  imports: [CommonModule, Button01],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
@@ -241,6 +239,30 @@ export class RegisterComponent {
         this.errors.set([{ field: 'form', message: error.message || 'Error al registrar' }]);
       },
     });
+  }
+
+  /**
+   * Update client form field
+   */
+  updateClientField(field: keyof ClientFormData, value: string): void {
+    const current = this.clientData();
+    this.clientData.set({ ...current, [field]: value });
+  }
+
+  /**
+   * Update establishment owner field
+   */
+  updateOwnerField(field: keyof EstablishmentOwnerData, value: string | File | null): void {
+    const current = this.establishmentOwner();
+    this.establishmentOwner.set({ ...current, [field]: value });
+  }
+
+  /**
+   * Update establishment location field
+   */
+  updateLocationField(field: keyof EstablishmentLocationData, value: string): void {
+    const current = this.establishmentLocation();
+    this.establishmentLocation.set({ ...current, [field]: value });
   }
 
   /**
