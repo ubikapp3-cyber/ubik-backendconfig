@@ -80,7 +80,7 @@ spring:
             - name: AuthorizationFilter
 
         # Booking Service - Reservations
-        - id: booking-service
+        - id: motel-management-bookings
           uri: http://localhost:8084
           predicates:
             - Path=/api/bookings/**
