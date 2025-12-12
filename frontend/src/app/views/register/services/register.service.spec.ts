@@ -84,7 +84,9 @@ describe('RegisterService', () => {
         frontIdImage: null,
         backIdImage: null,
       };
-      const errors = service.validateEstablishmentOwnerInfo({ owner });
+      const errors = service.validateEstablishmentOwnerInfo({ 
+        owner: owner as EstablishmentOwnerData 
+      });
       expect(errors.length).toBeGreaterThan(0);
     });
   });
@@ -107,7 +109,9 @@ describe('RegisterService', () => {
         department: '',
         municipality: '',
       };
-      const errors = service.validateEstablishmentLocation({ location });
+      const errors = service.validateEstablishmentLocation({ 
+        location: location as EstablishmentLocationData 
+      });
       expect(errors.length).toBeGreaterThan(0);
     });
   });
