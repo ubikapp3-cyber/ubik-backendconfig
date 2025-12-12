@@ -20,7 +20,6 @@ spring:
     init:
       mode: always
       platform: postgresql
-      continue-on-error: false
 
 # SpringDoc OpenAPI Configuration
 springdoc:
