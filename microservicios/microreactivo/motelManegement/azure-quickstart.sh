@@ -86,7 +86,8 @@ AZURE_PG_PORT=$AZURE_PG_PORT
 AZURE_PG_SSL_MODE=$AZURE_PG_SSL_MODE
 
 # Ruta del script SQL de inicialización
-SQL_INIT_SCRIPT=./src/main/resources/Postgres-init-motel.sql
+# Por defecto usa el script optimizado para Azure
+SQL_INIT_SCRIPT=./src/main/resources/azure-init-motel.sql
 EOF
 
 echo ""
