@@ -142,6 +142,11 @@ export class LoginService {
   /**
    * Stores authentication token
    * Uses early return for invalid token
+   * 
+   * SECURITY NOTE: localStorage is used for development convenience.
+   * For production, consider using httpOnly cookies to prevent XSS attacks,
+   * or implement additional security measures like token encryption.
+   * 
    * @param token - JWT token to store
    */
   storeAuthToken(token: string): void {
@@ -151,7 +156,7 @@ export class LoginService {
     }
 
     // Store in localStorage
-    // TODO: Consider more secure storage options
+    // TODO: In production, use httpOnly cookies for better security
     localStorage.setItem('auth_token', token);
   }
 

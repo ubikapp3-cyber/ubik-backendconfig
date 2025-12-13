@@ -56,6 +56,33 @@ export class LoginComponent {
   }
 
   /**
+   * Handle email input event
+   * @param event - Input event from email field
+   */
+  onEmailInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateField('email', target.value);
+  }
+
+  /**
+   * Handle password input event
+   * @param event - Input event from password field
+   */
+  onPasswordInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateField('password', target.value);
+  }
+
+  /**
+   * Handle remember me checkbox change
+   * @param event - Change event from checkbox
+   */
+  onRememberMeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.rememberMe.set(target.checked);
+  }
+
+  /**
    * Submit login form
    * Uses early returns to reduce nesting
    * Implements robust error handling
@@ -170,9 +197,14 @@ export class LoginComponent {
    * TODO: Implement password reset flow
    */
   navigateToPasswordReset(): void {
-    // For now, show a message
+    // For now, show error message through the error system
     // TODO: Navigate to password reset page when implemented
-    alert('Funcionalidad de recuperación de contraseña próximamente');
+    this.errors.set([
+      { 
+        field: 'form', 
+        message: 'Funcionalidad de recuperación de contraseña próximamente' 
+      }
+    ]);
   }
 
   /**
