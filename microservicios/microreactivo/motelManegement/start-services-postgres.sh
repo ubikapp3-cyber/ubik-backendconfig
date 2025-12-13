@@ -62,7 +62,6 @@ check_postgres() {
 echo ""
 echo "🔍 Verificando puertos disponibles..."
 check_port 8080 || exit 1  # Gateway
-check_port 8082 || exit 1  # Products (si está en tu proyecto)
 check_port 8083 || exit 1  # Motel Management
 
 # Verificar PostgreSQL
@@ -104,8 +103,6 @@ start_service() {
 
 # Iniciar servicios en orden
 start_service "Gateway" "8080" "gateway"
-# Si tienes el microservicio products, descomenta la siguiente línea
-# start_service "Products" "8082" "products"
 start_service "Motel-Management" "8083" "motelManegement"
 
 echo ""

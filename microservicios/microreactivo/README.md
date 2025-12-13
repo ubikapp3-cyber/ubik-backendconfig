@@ -1,6 +1,6 @@
 # microreactivo-2025
 
-Plantilla 2025 con 3 microservicios **Spring WebFlux** (funcional con `records`) + **API Gateway** (Spring Cloud Gateway Server WebFlux) y **R2DBC MySQL**.
+Plantilla 2025 con microservicios **Spring WebFlux** (funcional con `records`) + **API Gateway** (Spring Cloud Gateway Server WebFlux) y **R2DBC MySQL**.
 
 ## Requisitos
 - JDK 21
@@ -17,17 +17,15 @@ SOURCE mysql-init.sql;
 En terminales separadas:
 ```bash
 mvn -q -pl MotelManagemement -am spring-boot:run
-mvn -q -pl products  -am spring-boot:run
 mvn -q -pl orders    -am spring-boot:run
 mvn -q -pl gateway   -am spring-boot:run
 ```
 
-Gateway: `http://localhost:8080/api/products` etc.
+Gateway: `http://localhost:8080/api/motels` etc.
 
 ## Pruebas
 ```bash
 mvn -q -pl customers test
-mvn -q -pl products  test
 mvn -q -pl orders    test
 mvn -q -pl gateway   test
 ```

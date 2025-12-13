@@ -22,15 +22,6 @@
       <jdbc-url>jdbc:mysql://localhost:3306/customers_db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="products_db@localhost" uuid="d3dc0764-bb7a-4b37-bd6b-c58f94683b46">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/products/src/main/resources/application.yml</remarks>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/products_db</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="orders_db@localhost" uuid="4aaeea41-f2ea-4d3e-945c-6f67950626d3">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
