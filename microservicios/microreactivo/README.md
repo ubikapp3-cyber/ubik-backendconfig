@@ -16,8 +16,8 @@ SOURCE mysql-init.sql;
 ## Cómo ejecutar (sin Docker)
 En terminales separadas:
 ```bash
-mvn -q -pl MotelManagemement -am spring-boot:run
-mvn -q -pl orders    -am spring-boot:run
+mvn -q -pl userManagement -am spring-boot:run
+mvn -q -pl motelManegement -am spring-boot:run
 mvn -q -pl gateway   -am spring-boot:run
 ```
 
@@ -25,7 +25,7 @@ Gateway: `http://localhost:8080/api/motels` etc.
 
 ## Pruebas
 ```bash
-mvn -q -pl customers test
-mvn -q -pl orders    test
+mvn -q -pl userManagement test
+mvn -q -pl motelManegement test
 mvn -q -pl gateway   test
 ```
