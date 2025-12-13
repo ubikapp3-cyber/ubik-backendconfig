@@ -83,6 +83,16 @@ export class LoginComponent {
   }
 
   /**
+   * Handle form submission
+   * Prevents default form behavior and calls login
+   * @param event - Form submission event
+   */
+  onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.submitLogin();
+  }
+
+  /**
    * Submit login form
    * Uses early returns to reduce nesting
    * Implements robust error handling
@@ -227,11 +237,13 @@ export class LoginComponent {
 
   /**
    * Check if field has error
+   * Optimized to avoid double array traversal
    * @param field - Field name to check
    * @returns true if field has error
    */
   hasFieldError(field: string): boolean {
-    return this.getFieldError(field) !== null;
+    const errors = this.errors();
+    return errors.some((e) => e.field === field);
   }
 
   /**

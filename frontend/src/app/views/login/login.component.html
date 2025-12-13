@@ -17,7 +17,7 @@
       </div>
     }
 
-    <form class="flex flex-col gap-4" (submit)="$event.preventDefault(); submitLogin()">
+    <form class="flex flex-col gap-4" (submit)="onFormSubmit($event)">
 
       <!-- Email Input -->
       <div class="text-left">
