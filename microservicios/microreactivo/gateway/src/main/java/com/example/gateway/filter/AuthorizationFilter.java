@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * Expected headers:
  * - X-User-Id: User identifier
- * - X-User-Role: User role (ADMIN, PROPERTY_OWNER, USER)
+ * - X-User-Role: User role ID (1=ADMIN, 2=PROPERTY_OWNER, 3=USER)
  * - X-User-Email: User email (optional)
  */
 @Component
@@ -33,7 +33,7 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
 
             // Extract headers
             String userId = getHeader(request, "X-User-Id");
-            String userRole = getHeader(request, "X-User-Role");
+            String userRoleStr = getHeader(request, "X-User-Role");
             String path = request.getPath().toString();
             String method = request.getMethod().toString();
 
@@ -42,24 +42,31 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
                 return unauthorized(exchange, "Missing X-User-Id header");
             }
 
-            if (userRole == null || userRole.isEmpty()) {
+            if (userRoleStr == null || userRoleStr.isEmpty()) {
                 return unauthorized(exchange, "Missing X-User-Role header");
             }
 
-            // Validate user role
-            if (!isValidRole(userRole)) {
-                return unauthorized(exchange, "Invalid role: " + userRole);
+            // Parse and validate role ID
+            Integer roleId;
+            try {
+                roleId = Integer.parseInt(userRoleStr);
+            } catch (NumberFormatException e) {
+                return unauthorized(exchange, "Invalid role format: " + userRoleStr);
+            }
+
+            if (!isValidRole(roleId)) {
+                return unauthorized(exchange, "Invalid role ID: " + roleId);
             }
 
             // Check permissions based on role and endpoint
-            if (!hasPermission(userRole, method, path, userId)) {
+            if (!hasPermission(roleId, method, path, userId)) {
                 return forbidden(exchange, "Insufficient permissions for " + method + " " + path);
             }
 
             // Add user context to downstream services
             ServerHttpRequest modifiedRequest = request.mutate()
                 .header("X-User-Id", userId)
-                .header("X-User-Role", userRole)
+                .header("X-User-Role", userRoleStr)
                 .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
@@ -71,25 +78,24 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
         return (headers != null && !headers.isEmpty()) ? headers.get(0) : null;
     }
 
-    private boolean isValidRole(String role) {
-        return role.equals("ADMIN") ||
-               role.equals("PROPERTY_OWNER") ||
-               role.equals("USER");
+    private boolean isValidRole(Integer roleId) {
+        // Valid role IDs: 1=ADMIN, 2=PROPERTY_OWNER, 3=USER
+        return roleId != null && roleId >= 1 && roleId <= 3;
     }
 
-    private boolean hasPermission(String role, String method, String path, String userId) {
-        // ADMIN can do everything
-        if (role.equals("ADMIN")) {
+    private boolean hasPermission(Integer roleId, String method, String path, String userId) {
+        // ADMIN (roleId=1) can do everything
+        if (roleId == 1) {
             return true;
         }
 
-        // PROPERTY_OWNER permissions
-        if (role.equals("PROPERTY_OWNER")) {
+        // PROPERTY_OWNER (roleId=2) permissions
+        if (roleId == 2) {
             return hasPropertyOwnerPermission(method, path);
         }
 
-        // USER permissions (most restrictive)
-        if (role.equals("USER")) {
+        // USER (roleId=3) permissions (most restrictive)
+        if (roleId == 3) {
             return hasUserPermission(method, path);
         }
 
