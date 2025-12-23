@@ -5,7 +5,7 @@ spring:
     password:
   sql:
     init:
-      mode: always
+      mode: never
       
 logging:
   level:
