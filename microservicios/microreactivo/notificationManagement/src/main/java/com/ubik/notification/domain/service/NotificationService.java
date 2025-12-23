@@ -24,7 +24,7 @@ public class NotificationService implements NotificationUseCasePort {
     public Mono<Notification> createNotification(Notification notification) {
         // Validaciones de negocio
         return validateNotification(notification)
-                .then(notificationRepositoryPort.save(notification));
+                .then(Mono.defer(() -> notificationRepositoryPort.save(notification)));
     }
 
     @Override
@@ -110,7 +110,7 @@ public class NotificationService implements NotificationUseCasePort {
                             notification.type()
                     );
                     return validateNotification(updatedNotification)
-                            .then(notificationRepositoryPort.update(updatedNotification));
+                            .then(Mono.defer(() -> notificationRepositoryPort.update(updatedNotification)));
                 });
     }
 

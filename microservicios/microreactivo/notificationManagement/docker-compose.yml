@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL para notificaciones
+  postgres-notifications:
+    image: postgres:16-alpine
+    container_name: postgres-notifications
+    environment:
+      POSTGRES_DB: notification_management_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_notifications_data:/var/lib/postgresql/data
+    networks:
+      - notification-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Microservicio de notificaciones
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notification-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres-notifications:5432/notification_management_db
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: postgres
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+    networks:
+      - notification-network
+    restart: unless-stopped
+
+volumes:
+  postgres_notifications_data:
+
+networks:
+  notification-network:
+    driver: bridge
