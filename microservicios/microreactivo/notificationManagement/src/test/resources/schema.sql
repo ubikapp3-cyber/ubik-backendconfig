@@ -26,8 +26,8 @@ CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
 
 -- Datos de ejemplo para pruebas (compatible con H2)
 INSERT INTO notifications (title, message, type, recipient, recipient_type, status, created_at) VALUES
-('Bienvenida al sistema', 'Gracias por registrarte en nuestra plataforma', 'WELCOME', 'user123', 'USER', 'SENT', DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
-('Nueva reserva', 'Tienes una nueva reserva para el 25 de diciembre', 'BOOKING', 'user123', 'USER', 'SENT', DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
+('Bienvenida al sistema', 'Gracias por registrarte en nuestra plataforma', 'WELCOME', 'user123', 'USER', 'SENT', TIMESTAMPADD(DAY, -2, CURRENT_TIMESTAMP)),
+('Nueva reserva', 'Tienes una nueva reserva para el 25 de diciembre', 'BOOKING', 'user123', 'USER', 'SENT', TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP)),
 ('Recordatorio de pago', 'Tu factura vence en 3 días', 'PAYMENT', 'user456', 'USER', 'PENDING', CURRENT_TIMESTAMP),
-('Actualización del sistema', 'El sistema estará en mantenimiento esta noche', 'SYSTEM', 'all', 'BROADCAST', 'SENT', DATEADD('HOUR', -5, CURRENT_TIMESTAMP)),
+('Actualización del sistema', 'El sistema estará en mantenimiento esta noche', 'SYSTEM', 'all', 'BROADCAST', 'SENT', TIMESTAMPADD(HOUR, -5, CURRENT_TIMESTAMP)),
 ('Confirmación de email', 'Por favor confirma tu dirección de correo electrónico', 'VERIFICATION', 'user789', 'USER', 'PENDING', CURRENT_TIMESTAMP);

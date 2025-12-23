@@ -111,8 +111,10 @@ public class NotificationController {
     public Mono<NotificationResponse> updateNotification(
             @Parameter(description = "ID de la notificación") @PathVariable Long id,
             @Valid @RequestBody UpdateNotificationRequest request) {
-        Notification notification = mapper.toDomain(request);
-        return notificationUseCasePort.updateNotification(id, notification)
+        // Primero obtenemos la notificación existente, luego la actualizamos
+        return notificationUseCasePort.getNotificationById(id)
+                .map(existing -> mapper.toDomainForUpdate(request, existing))
+                .flatMap(updated -> notificationUseCasePort.updateNotification(id, updated))
                 .map(mapper::toResponse);
     }
 

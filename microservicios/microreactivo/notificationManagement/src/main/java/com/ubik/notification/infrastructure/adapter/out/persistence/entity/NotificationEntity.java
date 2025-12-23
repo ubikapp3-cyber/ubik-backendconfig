@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 
 /**
- * Entidad JPA para la tabla de notificaciones
+ * Entidad R2DBC para la tabla de notificaciones
  * Representa la estructura de persistencia
  */
 @Table("notifications")

@@ -32,26 +32,18 @@ public class NotificationDtoMapper {
 
     /**
      * Convierte UpdateNotificationRequest a Notification (dominio)
-     * Nota: Solo contiene los campos actualizables
+     * Este método crea una notificación parcial que solo contiene los campos actualizables.
+     * Los demás campos deben ser preservados del objeto existente en el servicio de dominio.
      */
-    public Notification toDomain(UpdateNotificationRequest request) {
-        if (request == null) {
+    public Notification toDomainForUpdate(UpdateNotificationRequest request, Notification existing) {
+        if (request == null || existing == null) {
             return null;
         }
 
-        // Solo para actualización, los demás campos se conservarán del objeto existente
-        return new Notification(
-                null,
+        return existing.withUpdatedInfo(
                 request.title(),
                 request.message(),
-                request.type(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                request.type()
         );
     }
 
