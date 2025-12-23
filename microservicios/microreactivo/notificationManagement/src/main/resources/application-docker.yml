@@ -1,0 +1,25 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: notification-management-service
+
+  # PostgreSQL R2DBC para Docker
+  r2dbc:
+    url: r2dbc:postgresql://postgres-notifications:5432/notification_management_db
+    username: postgres
+    password: postgres
+    pool:
+      initial-size: 10
+      max-size: 30
+      max-idle-time: 30m
+
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    com.ubik.notification: INFO
+    org.springframework.r2dbc: INFO
