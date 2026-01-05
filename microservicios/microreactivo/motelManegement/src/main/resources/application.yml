@@ -7,9 +7,9 @@ spring:
 
   # PostgreSQL R2DBC
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/motel_management_db
-    username: postgres
-    password: carlosmanuel
+    url: ${DB_URL:r2dbc:postgresql://localhost:5432/motel_management_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:changeme}
     pool:
       initial-size: 10
       max-size: 20

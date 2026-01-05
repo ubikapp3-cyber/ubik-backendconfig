@@ -6,9 +6,9 @@ spring:
     name: userManagement-service
 
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/userManagement_db
-    username: postgres
-    password: "12345"
+    url: ${DB_URL:r2dbc:postgresql://localhost:5432/userManagement_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:changeme}
 
   sql:
     init:
@@ -28,5 +28,5 @@ springdoc:
     enabled: true
 
 jwt:
-  secret: mySecretKey1234567890abcdef1234567890abcdef
-  expiration: 86400000 # 1 día en milisegundos
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000} # 1 día en milisegundos

@@ -24,7 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
+                // CSRF disabled for stateless JWT API - see CSRF_ANALYSIS.md for justification
+                // JWT tokens are sent in Authorization header, not cookies, making CSRF attacks ineffective
+                // lgtm[java/spring-disabled-csrf-protection]
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .headers(headers -> headers.cache(cache -> cache.disable()))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**").permitAll()
                         //.pathMatchers("/api/user/**").authenticated()
