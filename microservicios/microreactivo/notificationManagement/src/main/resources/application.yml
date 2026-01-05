@@ -1,0 +1,42 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: notification-management-service
+
+  # PostgreSQL R2DBC
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/notification_management_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:carlosmanuel}
+    pool:
+      initial-size: 10
+      max-size: 20
+      max-idle-time: 30m
+
+  # Configuración para inicialización de esquema
+  sql:
+    init:
+      mode: always
+      platform: postgresql
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
+logging:
+  level:
+    com.ubik.notification: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG

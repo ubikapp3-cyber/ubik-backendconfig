@@ -1,0 +1,26 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: notification-management-service
+
+  # PostgreSQL R2DBC para desarrollo
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/notification_management_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:carlosmanuel}
+    pool:
+      initial-size: 5
+      max-size: 10
+      max-idle-time: 30m
+
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    com.ubik.notification: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG
