@@ -11,7 +11,6 @@
         <module name="motel-management" />
         <module name="user-management" />
         <module name="gateway" />
-        <module name="products" />
       </profile>
     </annotationProcessing>
   </component>
@@ -21,7 +20,6 @@
       <module name="gateway" options="-parameters" />
       <module name="motel-management" options="-parameters" />
       <module name="orders" options="-parameters" />
-      <module name="products" options="-parameters" />
       <module name="user-management" options="-parameters" />
     </option>
   </component>
