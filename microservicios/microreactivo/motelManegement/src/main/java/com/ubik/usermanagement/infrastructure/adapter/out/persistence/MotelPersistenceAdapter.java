@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Adaptador de persistencia para Motel con soporte de imágenes
@@ -102,14 +101,15 @@ public class MotelPersistenceAdapter implements MotelRepositoryPort {
             return Mono.empty();
         }
 
-        AtomicInteger order = new AtomicInteger(1);
+        LocalDateTime now = LocalDateTime.now();
         return Flux.fromIterable(imageUrls)
-                .map(url -> new MotelImageEntity(
+                .index()
+                .map(tuple -> new MotelImageEntity(
                         null,
                         motelId,
-                        url,
-                        order.getAndIncrement(),
-                        LocalDateTime.now()
+                        tuple.getT2(),
+                        (int) (tuple.getT1() + 1),
+                        now
                 ))
                 .flatMap(motelImageRepository::save)
                 .then();

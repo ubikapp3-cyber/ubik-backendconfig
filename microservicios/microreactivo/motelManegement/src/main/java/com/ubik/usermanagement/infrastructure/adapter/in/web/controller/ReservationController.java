@@ -81,8 +81,13 @@ public class ReservationController {
     @Operation(summary = "Listar todas las reservas", description = "Obtiene un listado de todas las reservas registradas")
     @ApiResponse(responseCode = "200", description = "Listado de reservas obtenido exitosamente")
     @GetMapping
-    public Flux<ReservationResponse> getAllReservations() {
+    public Flux<ReservationResponse> getAllReservations(
+            @RequestParam(defaultValue = "100") @Parameter(description = "Límite de resultados") int limit) {
+        if (limit <= 0 || limit > 1000) {
+            limit = 100;
+        }
         return reservationUseCasePort.getAllReservations()
+                .take(limit)
                 .map(reservationDtoMapper::toResponse);
     }
 

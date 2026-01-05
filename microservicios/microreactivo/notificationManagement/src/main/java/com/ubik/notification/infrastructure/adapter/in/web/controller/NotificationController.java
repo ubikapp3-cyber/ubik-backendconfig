@@ -54,8 +54,13 @@ public class NotificationController {
 
     @GetMapping
     @Operation(summary = "Obtener todas las notificaciones", description = "Lista todas las notificaciones del sistema")
-    public Flux<NotificationResponse> getAllNotifications() {
+    public Flux<NotificationResponse> getAllNotifications(
+            @RequestParam(defaultValue = "100") @Parameter(description = "Límite de resultados") int limit) {
+        if (limit <= 0 || limit > 1000) {
+            limit = 100;
+        }
         return notificationUseCasePort.getAllNotifications()
+                .take(limit)
                 .map(mapper::toResponse);
     }
 
@@ -82,9 +87,13 @@ public class NotificationController {
                description = "Lista todas las notificaciones en un estado específico")
     public Flux<NotificationResponse> getNotificationsByStatus(
             @Parameter(description = "Estado de la notificación") @PathVariable String status) {
-        Notification.NotificationStatus notificationStatus = Notification.NotificationStatus.valueOf(status.toUpperCase());
-        return notificationUseCasePort.getNotificationsByStatus(notificationStatus)
-                .map(mapper::toResponse);
+        try {
+            Notification.NotificationStatus notificationStatus = Notification.NotificationStatus.valueOf(status.toUpperCase());
+            return notificationUseCasePort.getNotificationsByStatus(notificationStatus)
+                    .map(mapper::toResponse);
+        } catch (IllegalArgumentException e) {
+            return Flux.error(new IllegalArgumentException("Invalid status: " + status + ". Valid values are: PENDING, SENT, READ, CANCELLED"));
+        }
     }
 
     @PostMapping("/{id}/send")
