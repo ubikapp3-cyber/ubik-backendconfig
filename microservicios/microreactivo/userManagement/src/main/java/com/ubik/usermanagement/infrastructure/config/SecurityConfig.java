@@ -28,10 +28,7 @@ public class SecurityConfig {
                 // JWT tokens are sent in Authorization header, not cookies, making CSRF attacks ineffective
                 // lgtm[java/spring-disabled-csrf-protection]
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .headers(headers -> headers
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
-                        .cache(cache -> cache.disable())
-                )
+                .headers(headers -> headers.cache(cache -> cache.disable()))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**").permitAll()
                         //.pathMatchers("/api/user/**").authenticated()
