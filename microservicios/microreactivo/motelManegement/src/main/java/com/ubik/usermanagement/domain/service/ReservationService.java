@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 @Service
 public class ReservationService implements ReservationUseCasePort {
 
+    private static final int MAX_RESERVATION_DAYS = 30;
+    private static final int CHECK_IN_GRACE_PERIOD_HOURS = 1;
+
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final RoomRepositoryPort roomRepositoryPort;
 
@@ -238,7 +241,7 @@ public class ReservationService implements ReservationUseCasePort {
         // Only validate future dates for new reservations (when checking in hasn't happened yet)
         LocalDateTime now = LocalDateTime.now();
         if (reservation.status() == null || reservation.status() == Reservation.ReservationStatus.PENDING) {
-            if (reservation.checkInDate().isBefore(now.minusHours(1))) {
+            if (reservation.checkInDate().isBefore(now.minusHours(CHECK_IN_GRACE_PERIOD_HOURS))) {
                 return Mono.error(new IllegalArgumentException(
                         "La fecha de check-in no puede ser en el pasado"));
             }
@@ -246,13 +249,13 @@ public class ReservationService implements ReservationUseCasePort {
         if (reservation.totalPrice() == null || reservation.totalPrice() <= 0) {
             return Mono.error(new IllegalArgumentException("El precio total debe ser mayor que cero"));
         }
-        // Validate max stay duration (e.g., 30 days)
+        // Validate max stay duration
         long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(
                 reservation.checkInDate().toLocalDate(), 
                 reservation.checkOutDate().toLocalDate());
-        if (daysBetween > 30) {
+        if (daysBetween > MAX_RESERVATION_DAYS) {
             return Mono.error(new IllegalArgumentException(
-                    "La duración máxima de la reserva es de 30 días"));
+                    "La duración máxima de la reserva es de " + MAX_RESERVATION_DAYS + " días"));
         }
         return Mono.empty();
     }

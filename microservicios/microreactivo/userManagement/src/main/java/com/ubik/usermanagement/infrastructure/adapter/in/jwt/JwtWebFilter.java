@@ -56,7 +56,7 @@ public class JwtWebFilter {
                             .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
                 }
             } catch (Exception e) {
-                // Log the exception for debugging (consider adding logger)
+                // Authentication failed, continue without security context
                 return chain.filter(exchange);
             }
 
