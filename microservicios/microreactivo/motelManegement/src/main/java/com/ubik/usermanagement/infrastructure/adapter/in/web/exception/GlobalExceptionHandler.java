@@ -60,7 +60,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public Mono<ResponseEntity<ErrorResponse>> handleRuntimeException(RuntimeException ex) {
-        HttpStatus status = ex.getMessage().contains("no encontrado") 
+        // Check if it's a "not found" error by message content
+        HttpStatus status = (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("no encontrado")) 
                 ? HttpStatus.NOT_FOUND 
                 : HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -72,6 +73,21 @@ public class GlobalExceptionHandler {
         );
 
         return Mono.just(ResponseEntity.status(status).body(errorResponse));
+    }
+
+    /**
+     * Maneja IllegalStateException (conflictos de estado)
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleIllegalStateException(IllegalStateException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse));
     }
 
     /**
