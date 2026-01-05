@@ -9,6 +9,8 @@ import com.ubik.usermanagement.domain.port.out.ChatbotRepositoryPort;
 import com.ubik.usermanagement.domain.port.out.ReservationRepositoryPort;
 import com.ubik.usermanagement.domain.port.out.RoomRepositoryPort;
 import com.ubik.usermanagement.domain.port.out.MotelRepositoryPort;
+import com.ubik.usermanagement.domain.service.chatbot.IntentClassifier;
+import com.ubik.usermanagement.domain.service.chatbot.ResponseFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests unitarios para ChatbotService
+ * Tests unitarios para ChatbotService refactorizado
  */
 @ExtendWith(MockitoExtension.class)
 class ChatbotServiceTest {
@@ -44,14 +46,20 @@ class ChatbotServiceTest {
     private MotelRepositoryPort motelRepositoryPort;
 
     private ChatbotService chatbotService;
+    private IntentClassifier intentClassifier;
+    private ResponseFormatter responseFormatter;
 
     @BeforeEach
     void setUp() {
+        intentClassifier = new IntentClassifier();
+        responseFormatter = new ResponseFormatter();
         chatbotService = new ChatbotService(
                 chatbotRepositoryPort,
                 reservationRepositoryPort,
                 roomRepositoryPort,
-                motelRepositoryPort
+                motelRepositoryPort,
+                intentClassifier,
+                responseFormatter
         );
     }
 
