@@ -1,5 +1,6 @@
 package com.ubik.usermanagement.domain.validator;
 
+import com.ubik.usermanagement.domain.constants.ReservationErrorMessages;
 import com.ubik.usermanagement.domain.model.Reservation;
 import reactor.core.publisher.Mono;
 
@@ -33,7 +34,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateRoomId(Long roomId) {
         if (roomId == null) {
-            return Mono.error(new IllegalArgumentException("El ID de la habitación es requerido"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.ROOM_ID_REQUIRED));
         }
         return Mono.empty();
     }
@@ -43,7 +44,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateUserId(Long userId) {
         if (userId == null) {
-            return Mono.error(new IllegalArgumentException("El ID del usuario es requerido"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.USER_ID_REQUIRED));
         }
         return Mono.empty();
     }
@@ -53,7 +54,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateCheckInDate(LocalDateTime checkInDate) {
         if (checkInDate == null) {
-            return Mono.error(new IllegalArgumentException("La fecha de check-in es requerida"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.CHECK_IN_DATE_REQUIRED));
         }
         return Mono.empty();
     }
@@ -63,7 +64,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateCheckOutDate(LocalDateTime checkOutDate) {
         if (checkOutDate == null) {
-            return Mono.error(new IllegalArgumentException("La fecha de check-out es requerida"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.CHECK_OUT_DATE_REQUIRED));
         }
         return Mono.empty();
     }
@@ -73,8 +74,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateDateOrder(LocalDateTime checkInDate, LocalDateTime checkOutDate) {
         if (!checkInDate.isBefore(checkOutDate)) {
-            return Mono.error(new IllegalArgumentException(
-                    "La fecha de check-in debe ser anterior a la fecha de check-out"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.CHECK_IN_BEFORE_CHECK_OUT));
         }
         return Mono.empty();
     }
@@ -87,8 +87,7 @@ public class ReservationValidator {
         if (status == null || status == Reservation.ReservationStatus.PENDING) {
             LocalDateTime now = LocalDateTime.now();
             if (checkInDate.isBefore(now.minusHours(CHECK_IN_GRACE_PERIOD_HOURS))) {
-                return Mono.error(new IllegalArgumentException(
-                        "La fecha de check-in no puede ser en el pasado"));
+                return Mono.error(new IllegalArgumentException(ReservationErrorMessages.CHECK_IN_NOT_IN_PAST));
             }
         }
         return Mono.empty();
@@ -99,7 +98,7 @@ public class ReservationValidator {
      */
     public Mono<Void> validateTotalPrice(Double totalPrice) {
         if (totalPrice == null || totalPrice <= 0) {
-            return Mono.error(new IllegalArgumentException("El precio total debe ser mayor que cero"));
+            return Mono.error(new IllegalArgumentException(ReservationErrorMessages.TOTAL_PRICE_POSITIVE));
         }
         return Mono.empty();
     }
@@ -114,7 +113,7 @@ public class ReservationValidator {
         
         if (daysBetween > MAX_RESERVATION_DAYS) {
             return Mono.error(new IllegalArgumentException(
-                    String.format("La duración máxima de la reserva es de %d días", MAX_RESERVATION_DAYS)));
+                    String.format(ReservationErrorMessages.MAX_DURATION_EXCEEDED_FORMAT, MAX_RESERVATION_DAYS)));
         }
         return Mono.empty();
     }

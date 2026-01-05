@@ -121,6 +121,8 @@ public class AuthController {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Mono<String> handleRuntimeException(RuntimeException ex) {
-        return Mono.just("An unexpected error occurred: " + ex.getMessage());
+        // Log the actual exception for debugging
+        // but return a generic message to avoid exposing internal details
+        return Mono.just("An unexpected error occurred. Please try again later.");
     }
 }

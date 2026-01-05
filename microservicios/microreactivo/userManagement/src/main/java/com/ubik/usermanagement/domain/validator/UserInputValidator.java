@@ -9,7 +9,8 @@ import reactor.core.publisher.Mono;
 public class UserInputValidator {
     
     private static final int MIN_PASSWORD_LENGTH = 6;
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+    // RFC 5322 compliant email regex (simplified but more robust)
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$";
     
     /**
      * Validates that username is not null or empty

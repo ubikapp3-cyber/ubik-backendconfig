@@ -1,5 +1,6 @@
 package com.ubik.usermanagement.domain.service;
 
+import com.ubik.usermanagement.domain.constants.ReservationErrorMessages;
 import com.ubik.usermanagement.domain.exception.InvalidReservationStateException;
 import com.ubik.usermanagement.domain.exception.ReservationNotFoundException;
 import com.ubik.usermanagement.domain.exception.RoomNotAvailableException;
@@ -213,7 +214,7 @@ public class ReservationService implements ReservationUseCasePort {
                 .flatMap(hasOverlapping -> {
                     if (hasOverlapping) {
                         return Mono.error(new RoomNotAvailableException(
-                                "La habitación no está disponible para las nuevas fechas"));
+                                ReservationErrorMessages.ROOM_NOT_AVAILABLE_NEW_DATES));
                     }
                     return Mono.empty();
                 });
@@ -273,7 +274,7 @@ public class ReservationService implements ReservationUseCasePort {
     private Mono<Void> performDeletion(Reservation reservation) {
         if (reservation.status() != Reservation.ReservationStatus.CANCELLED) {
             return Mono.error(new IllegalArgumentException(
-                    "Solo se pueden eliminar reservas canceladas"));
+                    ReservationErrorMessages.ONLY_CANCELLED_CAN_BE_DELETED));
         }
         return reservationRepositoryPort.deleteById(reservation.id());
     }
