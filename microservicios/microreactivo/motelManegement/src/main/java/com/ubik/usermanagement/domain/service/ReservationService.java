@@ -1,9 +1,14 @@
 package com.ubik.usermanagement.domain.service;
 
+import com.ubik.usermanagement.domain.exception.InvalidReservationStateException;
+import com.ubik.usermanagement.domain.exception.ReservationNotFoundException;
+import com.ubik.usermanagement.domain.exception.RoomNotAvailableException;
+import com.ubik.usermanagement.domain.exception.RoomNotFoundException;
 import com.ubik.usermanagement.domain.model.Reservation;
 import com.ubik.usermanagement.domain.port.in.ReservationUseCasePort;
 import com.ubik.usermanagement.domain.port.out.ReservationRepositoryPort;
 import com.ubik.usermanagement.domain.port.out.RoomRepositoryPort;
+import com.ubik.usermanagement.domain.validator.ReservationValidator;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,54 +17,36 @@ import java.time.LocalDateTime;
 
 /**
  * Servicio de dominio que implementa los casos de uso de Reservation
- * Contiene la lógica de negocio para gestión de reservas
+ * Refactored to follow SOLID principles with extracted validation and early returns
  */
 @Service
 public class ReservationService implements ReservationUseCasePort {
 
-    private static final int MAX_RESERVATION_DAYS = 30;
-    private static final int CHECK_IN_GRACE_PERIOD_HOURS = 1;
-
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final RoomRepositoryPort roomRepositoryPort;
+    private final ReservationValidator reservationValidator;
 
     public ReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
-            RoomRepositoryPort roomRepositoryPort
+            RoomRepositoryPort roomRepositoryPort,
+            ReservationValidator reservationValidator
     ) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.roomRepositoryPort = roomRepositoryPort;
+        this.reservationValidator = reservationValidator;
     }
 
     @Override
     public Mono<Reservation> createReservation(Reservation reservation) {
-        return validateReservation(reservation)
-                .then(roomRepositoryPort.existsById(reservation.roomId()))
-                .flatMap(roomExists -> {
-                    if (!roomExists) {
-                        return Mono.error(new RuntimeException("Habitación no encontrada con ID: " + reservation.roomId()));
-                    }
-                    // Check availability and save atomically to prevent race conditions
-                    return reservationRepositoryPort.findOverlappingReservations(
-                            reservation.roomId(), 
-                            reservation.checkInDate(), 
-                            reservation.checkOutDate())
-                            .filter(Reservation::isActive)
-                            .hasElements()
-                            .flatMap(hasOverlapping -> {
-                                if (hasOverlapping) {
-                                    return Mono.error(new IllegalArgumentException(
-                                            "La habitación no está disponible para las fechas seleccionadas"));
-                                }
-                                return reservationRepositoryPort.save(reservation);
-                            });
-                });
+        return reservationValidator.validate(reservation)
+                .then(checkRoomExists(reservation.roomId()))
+                .then(checkRoomAvailability(reservation))
+                .then(reservationRepositoryPort.save(reservation));
     }
 
     @Override
     public Mono<Reservation> getReservationById(Long id) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)));
+        return findReservationById(id);
     }
 
     @Override
@@ -92,171 +79,202 @@ public class ReservationService implements ReservationUseCasePort {
         return reservationRepositoryPort.findOverlappingReservations(roomId, checkIn, checkOut)
                 .filter(Reservation::isActive)
                 .hasElements()
-                .map(hasOverlapping -> !hasOverlapping); // Si no hay solapamientos, está disponible
+                .map(hasOverlapping -> !hasOverlapping);
     }
 
     @Override
     public Mono<Reservation> updateReservation(Long id, Reservation reservation) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(existingReservation -> {
-                    if (!existingReservation.canBeCancelled()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "La reserva no puede ser modificada en su estado actual: " + existingReservation.status()));
-                    }
-
-                    // Check if dates changed
-                    boolean datesChanged = !existingReservation.checkInDate().equals(reservation.checkInDate()) ||
-                            !existingReservation.checkOutDate().equals(reservation.checkOutDate());
-
-                    // Build updated reservation
-                    Reservation updatedReservation = new Reservation(
-                            id,
-                            existingReservation.roomId(),
-                            existingReservation.userId(),
-                            reservation.checkInDate(),
-                            reservation.checkOutDate(),
-                            existingReservation.status(),
-                            reservation.totalPrice(),
-                            reservation.specialRequests(),
-                            existingReservation.createdAt(),
-                            LocalDateTime.now()
-                    );
-
-                    // Validate the updated reservation
-                    Mono<Void> validation = validateReservation(updatedReservation);
-
-                    // If dates changed, also check availability
-                    if (datesChanged) {
-                        validation = validation.then(
-                                reservationRepositoryPort.findOverlappingReservations(
-                                        existingReservation.roomId(),
-                                        reservation.checkInDate(),
-                                        reservation.checkOutDate())
-                                        .filter(r -> r.isActive() && !r.id().equals(id))
-                                        .hasElements()
-                                        .flatMap(hasOverlapping -> {
-                                            if (hasOverlapping) {
-                                                return Mono.error(new IllegalArgumentException(
-                                                        "La habitación no está disponible para las nuevas fechas"));
-                                            }
-                                            return Mono.empty();
-                                        })
-                        );
-                    }
-
-                    return validation.then(reservationRepositoryPort.update(updatedReservation));
-                });
+        return findReservationById(id)
+                .flatMap(existingReservation -> validateAndUpdateReservation(id, reservation, existingReservation));
     }
 
     @Override
     public Mono<Reservation> confirmReservation(Long id) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(reservation -> {
-                    if (!reservation.canBeConfirmed()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "La reserva no puede ser confirmada en su estado actual: " + reservation.status()));
-                    }
-                    Reservation confirmedReservation = reservation.withStatus(Reservation.ReservationStatus.CONFIRMED);
-                    return reservationRepositoryPort.update(confirmedReservation);
-                });
+        return findReservationById(id)
+                .flatMap(this::performConfirmation);
     }
 
     @Override
     public Mono<Reservation> cancelReservation(Long id) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(reservation -> {
-                    if (!reservation.canBeCancelled()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "La reserva no puede ser cancelada en su estado actual: " + reservation.status()));
-                    }
-                    Reservation cancelledReservation = reservation.withStatus(Reservation.ReservationStatus.CANCELLED);
-                    return reservationRepositoryPort.update(cancelledReservation);
-                });
+        return findReservationById(id)
+                .flatMap(this::performCancellation);
     }
 
     @Override
     public Mono<Reservation> checkIn(Long id) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(reservation -> {
-                    if (!reservation.canCheckIn()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "No se puede hacer check-in en el estado actual: " + reservation.status()));
-                    }
-                    Reservation checkedInReservation = reservation.withStatus(Reservation.ReservationStatus.CHECKED_IN);
-                    return reservationRepositoryPort.update(checkedInReservation);
-                });
+        return findReservationById(id)
+                .flatMap(this::performCheckIn);
     }
 
     @Override
     public Mono<Reservation> checkOut(Long id) {
-        return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(reservation -> {
-                    if (!reservation.canCheckOut()) {
-                        return Mono.error(new IllegalArgumentException(
-                                "No se puede hacer check-out en el estado actual: " + reservation.status()));
-                    }
-                    Reservation checkedOutReservation = reservation.withStatus(Reservation.ReservationStatus.CHECKED_OUT);
-                    return reservationRepositoryPort.update(checkedOutReservation);
-                });
+        return findReservationById(id)
+                .flatMap(this::performCheckOut);
     }
 
     @Override
     public Mono<Void> deleteReservation(Long id) {
+        return findReservationById(id)
+                .flatMap(this::performDeletion);
+    }
+
+    /**
+     * Finds reservation by ID or throws exception
+     */
+    private Mono<Reservation> findReservationById(Long id) {
         return reservationRepositoryPort.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Reserva no encontrada con ID: " + id)))
-                .flatMap(reservation -> {
-                    if (reservation.status() != Reservation.ReservationStatus.CANCELLED) {
-                        return Mono.error(new IllegalArgumentException(
-                                "Solo se pueden eliminar reservas canceladas"));
+                .switchIfEmpty(Mono.error(new ReservationNotFoundException(id)));
+    }
+
+    /**
+     * Checks if room exists or throws exception
+     */
+    private Mono<Void> checkRoomExists(Long roomId) {
+        return roomRepositoryPort.existsById(roomId)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return Mono.error(new RoomNotFoundException(roomId));
                     }
-                    return reservationRepositoryPort.deleteById(id);
+                    return Mono.empty();
                 });
     }
 
     /**
-     * Validaciones de negocio para una reserva
+     * Checks if room is available for the reservation dates
      */
-    private Mono<Void> validateReservation(Reservation reservation) {
-        if (reservation.roomId() == null) {
-            return Mono.error(new IllegalArgumentException("El ID de la habitación es requerido"));
+    private Mono<Void> checkRoomAvailability(Reservation reservation) {
+        return reservationRepositoryPort.findOverlappingReservations(
+                reservation.roomId(), 
+                reservation.checkInDate(), 
+                reservation.checkOutDate())
+                .filter(Reservation::isActive)
+                .hasElements()
+                .flatMap(hasOverlapping -> {
+                    if (hasOverlapping) {
+                        return Mono.error(new RoomNotAvailableException());
+                    }
+                    return Mono.empty();
+                });
+    }
+
+    /**
+     * Validates and updates reservation, checking availability if dates changed
+     */
+    private Mono<Reservation> validateAndUpdateReservation(Long id, Reservation reservation, Reservation existingReservation) {
+        if (!existingReservation.canBeCancelled()) {
+            return Mono.error(new InvalidReservationStateException(
+                    "modificar", existingReservation.status().toString()));
         }
-        if (reservation.userId() == null) {
-            return Mono.error(new IllegalArgumentException("El ID del usuario es requerido"));
+
+        boolean datesChanged = haveDatesChanged(existingReservation, reservation);
+        Reservation updatedReservation = buildUpdatedReservation(id, reservation, existingReservation);
+
+        return reservationValidator.validate(updatedReservation)
+                .then(datesChanged ? checkAvailabilityForUpdate(id, updatedReservation) : Mono.empty())
+                .then(reservationRepositoryPort.update(updatedReservation));
+    }
+
+    /**
+     * Checks if check-in or check-out dates have changed
+     */
+    private boolean haveDatesChanged(Reservation existing, Reservation updated) {
+        return !existing.checkInDate().equals(updated.checkInDate()) ||
+               !existing.checkOutDate().equals(updated.checkOutDate());
+    }
+
+    /**
+     * Builds updated reservation with preserved fields
+     */
+    private Reservation buildUpdatedReservation(Long id, Reservation newData, Reservation existing) {
+        return new Reservation(
+                id,
+                existing.roomId(),
+                existing.userId(),
+                newData.checkInDate(),
+                newData.checkOutDate(),
+                existing.status(),
+                newData.totalPrice(),
+                newData.specialRequests(),
+                existing.createdAt(),
+                LocalDateTime.now()
+        );
+    }
+
+    /**
+     * Checks availability for updated reservation dates
+     */
+    private Mono<Void> checkAvailabilityForUpdate(Long reservationId, Reservation reservation) {
+        return reservationRepositoryPort.findOverlappingReservations(
+                reservation.roomId(),
+                reservation.checkInDate(),
+                reservation.checkOutDate())
+                .filter(r -> r.isActive() && !r.id().equals(reservationId))
+                .hasElements()
+                .flatMap(hasOverlapping -> {
+                    if (hasOverlapping) {
+                        return Mono.error(new RoomNotAvailableException(
+                                "La habitación no está disponible para las nuevas fechas"));
+                    }
+                    return Mono.empty();
+                });
+    }
+
+    /**
+     * Performs confirmation state transition
+     */
+    private Mono<Reservation> performConfirmation(Reservation reservation) {
+        if (!reservation.canBeConfirmed()) {
+            return Mono.error(new InvalidReservationStateException(
+                    "confirmar", reservation.status().toString()));
         }
-        if (reservation.checkInDate() == null) {
-            return Mono.error(new IllegalArgumentException("La fecha de check-in es requerida"));
+        return reservationRepositoryPort.update(
+                reservation.withStatus(Reservation.ReservationStatus.CONFIRMED));
+    }
+
+    /**
+     * Performs cancellation state transition
+     */
+    private Mono<Reservation> performCancellation(Reservation reservation) {
+        if (!reservation.canBeCancelled()) {
+            return Mono.error(new InvalidReservationStateException(
+                    "cancelar", reservation.status().toString()));
         }
-        if (reservation.checkOutDate() == null) {
-            return Mono.error(new IllegalArgumentException("La fecha de check-out es requerida"));
+        return reservationRepositoryPort.update(
+                reservation.withStatus(Reservation.ReservationStatus.CANCELLED));
+    }
+
+    /**
+     * Performs check-in state transition
+     */
+    private Mono<Reservation> performCheckIn(Reservation reservation) {
+        if (!reservation.canCheckIn()) {
+            return Mono.error(new InvalidReservationStateException(
+                    "check-in", reservation.status().toString()));
         }
-        if (!reservation.checkInDate().isBefore(reservation.checkOutDate())) {
+        return reservationRepositoryPort.update(
+                reservation.withStatus(Reservation.ReservationStatus.CHECKED_IN));
+    }
+
+    /**
+     * Performs check-out state transition
+     */
+    private Mono<Reservation> performCheckOut(Reservation reservation) {
+        if (!reservation.canCheckOut()) {
+            return Mono.error(new InvalidReservationStateException(
+                    "check-out", reservation.status().toString()));
+        }
+        return reservationRepositoryPort.update(
+                reservation.withStatus(Reservation.ReservationStatus.CHECKED_OUT));
+    }
+
+    /**
+     * Performs deletion, only allowed for cancelled reservations
+     */
+    private Mono<Void> performDeletion(Reservation reservation) {
+        if (reservation.status() != Reservation.ReservationStatus.CANCELLED) {
             return Mono.error(new IllegalArgumentException(
-                    "La fecha de check-in debe ser anterior a la fecha de check-out"));
+                    "Solo se pueden eliminar reservas canceladas"));
         }
-        // Only validate future dates for new reservations (when checking in hasn't happened yet)
-        LocalDateTime now = LocalDateTime.now();
-        if (reservation.status() == null || reservation.status() == Reservation.ReservationStatus.PENDING) {
-            if (reservation.checkInDate().isBefore(now.minusHours(CHECK_IN_GRACE_PERIOD_HOURS))) {
-                return Mono.error(new IllegalArgumentException(
-                        "La fecha de check-in no puede ser en el pasado"));
-            }
-        }
-        if (reservation.totalPrice() == null || reservation.totalPrice() <= 0) {
-            return Mono.error(new IllegalArgumentException("El precio total debe ser mayor que cero"));
-        }
-        // Validate max stay duration
-        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(
-                reservation.checkInDate().toLocalDate(), 
-                reservation.checkOutDate().toLocalDate());
-        if (daysBetween > MAX_RESERVATION_DAYS) {
-            return Mono.error(new IllegalArgumentException(
-                    "La duración máxima de la reserva es de " + MAX_RESERVATION_DAYS + " días"));
-        }
-        return Mono.empty();
+        return reservationRepositoryPort.deleteById(reservation.id());
     }
 }
