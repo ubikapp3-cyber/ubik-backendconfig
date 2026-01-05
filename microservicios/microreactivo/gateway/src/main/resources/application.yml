@@ -51,6 +51,7 @@ spring:
             - Path=/api/motels/**
           filters:
             - StripPrefix=0
+            - name: AuthorizationFilter
 
         # Motel Management - Rooms
         - id: motel-management-rooms
