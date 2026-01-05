@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 
 /**
- * Entidad JPA para ChatSession
+ * Entidad R2DBC para ChatSession
  */
 @Table("chat_sessions")
 public class ChatSessionEntity {
