@@ -4,12 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 public record UpdateUserRequest (
-        @Size(max = 20, message = "El número de teléfono no debe exceder 20 caracteres")
+        @Size(min = 10, max = 20, message = "El número de teléfono debe tener entre 10 y 20 caracteres")
         String phoneNumber,
 
         Boolean anonymous,
 
         @Email(message = "Correo electrónico no válido")
+        @Size(max = 100, message = "Email must not exceed 100 characters")
         String email
 )
 {}

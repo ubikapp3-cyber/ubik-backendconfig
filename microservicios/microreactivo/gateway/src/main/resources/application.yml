@@ -11,19 +11,19 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origins: "*"
+            allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200,http://localhost:3000}
             allowed-methods:
               - GET
               - POST
               - PUT
               - DELETE
               - OPTIONS
-            allowed-headers: "*"
+            allowed-headers: ${ALLOWED_HEADERS:Content-Type,Authorization,X-Requested-With}
             exposed-headers:
               - X-User-Id
               - X-User-Role
               - X-Error-Message
-            allow-credentials: false
+            allow-credentials: true
             max-age: 3600
 
       routes:
@@ -85,8 +85,8 @@ spring:
 
 # JWT Configuration
 jwt:
-  secret: mySecretKey1234567890abcdef1234567890abcdef
-  expiration: 86400000
+  secret: ${JWT_SECRET:}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # Logging configuration
 logging:

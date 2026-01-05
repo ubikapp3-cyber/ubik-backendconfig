@@ -24,7 +24,14 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable) // CSRF disabled for stateless JWT API
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
+                        .frameOptions(frameOptions -> frameOptions.mode(ServerHttpSecurity.HeaderSpec.XFrameOptionsSpec.Mode.DENY))
+                        .xssProtection(xss -> xss.headerValue(ServerHttpSecurity.HeaderSpec.XXssProtectionSpec.HeaderValue.ENABLED_MODE_BLOCK))
+                        .contentTypeOptions(contentTypeOptions -> {})
+                        .referrerPolicy(referrer -> referrer.policy(ServerHttpSecurity.HeaderSpec.ReferrerPolicySpec.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                )
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**").permitAll()
                         //.pathMatchers("/api/user/**").authenticated()
