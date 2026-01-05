@@ -1,6 +1,11 @@
 package com.ubik.usermanagement.infrastructure.adapter.in.web.controller;
 
 import com.ubik.usermanagement.application.port.in.UserUseCase;
+import com.ubik.usermanagement.domain.exception.ActiveResetTokenException;
+import com.ubik.usermanagement.domain.exception.InvalidCredentialsException;
+import com.ubik.usermanagement.domain.exception.InvalidTokenException;
+import com.ubik.usermanagement.domain.exception.UserAlreadyExistsException;
+import com.ubik.usermanagement.domain.exception.UserNotFoundException;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.LoginRequest;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.RegisterRequest;
 import com.ubik.usermanagement.infrastructure.adapter.in.web.dto.ResetPasswordRequest;
@@ -14,6 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+/**
+ * REST controller for authentication and user management operations
+ * Refactored with improved error handling
+ */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "API para autenticación y gestión de usuarios")
@@ -71,9 +80,47 @@ public class AuthController {
         return Mono.just("User or Client access granted");
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    // Exception Handlers
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Mono<String> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Mono<String> handleUserNotFound(UserNotFoundException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Mono<String> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<String> handleInvalidCredentials(RuntimeException ex) {
-        return Mono.just("Error"+ex.getMessage());
+    public Mono<String> handleInvalidToken(InvalidTokenException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(ActiveResetTokenException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public Mono<String> handleActiveResetToken(ActiveResetTokenException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Mono<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return Mono.just(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Mono<String> handleRuntimeException(RuntimeException ex) {
+        return Mono.just("An unexpected error occurred: " + ex.getMessage());
     }
 }
