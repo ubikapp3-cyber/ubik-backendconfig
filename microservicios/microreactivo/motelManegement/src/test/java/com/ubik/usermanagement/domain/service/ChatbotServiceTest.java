@@ -11,6 +11,7 @@ import com.ubik.usermanagement.domain.port.out.RoomRepositoryPort;
 import com.ubik.usermanagement.domain.port.out.MotelRepositoryPort;
 import com.ubik.usermanagement.domain.service.chatbot.IntentClassifier;
 import com.ubik.usermanagement.domain.service.chatbot.ResponseFormatter;
+import com.ubik.usermanagement.infrastructure.security.XssSanitizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,18 +49,21 @@ class ChatbotServiceTest {
     private ChatbotService chatbotService;
     private IntentClassifier intentClassifier;
     private ResponseFormatter responseFormatter;
+    private XssSanitizer xssSanitizer;
 
     @BeforeEach
     void setUp() {
         intentClassifier = new IntentClassifier();
         responseFormatter = new ResponseFormatter();
+        xssSanitizer = new XssSanitizer();
         chatbotService = new ChatbotService(
                 chatbotRepositoryPort,
                 reservationRepositoryPort,
                 roomRepositoryPort,
                 motelRepositoryPort,
                 intentClassifier,
-                responseFormatter
+                responseFormatter,
+                xssSanitizer
         );
     }
 
