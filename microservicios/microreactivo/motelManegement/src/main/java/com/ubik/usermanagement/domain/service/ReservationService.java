@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 @Service
 public class ReservationService implements ReservationUseCasePort {
 
+    private static final int MAX_RESERVATION_DAYS = 30;
+    private static final int CHECK_IN_GRACE_PERIOD_HOURS = 1;
+
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final RoomRepositoryPort roomRepositoryPort;
 
@@ -36,14 +39,20 @@ public class ReservationService implements ReservationUseCasePort {
                     if (!roomExists) {
                         return Mono.error(new RuntimeException("Habitación no encontrada con ID: " + reservation.roomId()));
                     }
-                    return isRoomAvailable(reservation.roomId(), reservation.checkInDate(), reservation.checkOutDate());
-                })
-                .flatMap(isAvailable -> {
-                    if (!isAvailable) {
-                        return Mono.error(new IllegalArgumentException(
-                                "La habitación no está disponible para las fechas seleccionadas"));
-                    }
-                    return reservationRepositoryPort.save(reservation);
+                    // Check availability and save atomically to prevent race conditions
+                    return reservationRepositoryPort.findOverlappingReservations(
+                            reservation.roomId(), 
+                            reservation.checkInDate(), 
+                            reservation.checkOutDate())
+                            .filter(Reservation::isActive)
+                            .hasElements()
+                            .flatMap(hasOverlapping -> {
+                                if (hasOverlapping) {
+                                    return Mono.error(new IllegalArgumentException(
+                                            "La habitación no está disponible para las fechas seleccionadas"));
+                                }
+                                return reservationRepositoryPort.save(reservation);
+                            });
                 });
     }
 
@@ -96,50 +105,47 @@ public class ReservationService implements ReservationUseCasePort {
                                 "La reserva no puede ser modificada en su estado actual: " + existingReservation.status()));
                     }
 
-                    // Verificar disponibilidad si se cambian las fechas
+                    // Check if dates changed
                     boolean datesChanged = !existingReservation.checkInDate().equals(reservation.checkInDate()) ||
                             !existingReservation.checkOutDate().equals(reservation.checkOutDate());
 
+                    // Build updated reservation
+                    Reservation updatedReservation = new Reservation(
+                            id,
+                            existingReservation.roomId(),
+                            existingReservation.userId(),
+                            reservation.checkInDate(),
+                            reservation.checkOutDate(),
+                            existingReservation.status(),
+                            reservation.totalPrice(),
+                            reservation.specialRequests(),
+                            existingReservation.createdAt(),
+                            LocalDateTime.now()
+                    );
+
+                    // Validate the updated reservation
+                    Mono<Void> validation = validateReservation(updatedReservation);
+
+                    // If dates changed, also check availability
                     if (datesChanged) {
-                        return isRoomAvailable(existingReservation.roomId(),
-                                reservation.checkInDate(),
-                                reservation.checkOutDate())
-                                .flatMap(isAvailable -> {
-                                    if (!isAvailable) {
-                                        return Mono.error(new IllegalArgumentException(
-                                                "La habitación no está disponible para las nuevas fechas"));
-                                    }
-                                    Reservation updatedReservation = new Reservation(
-                                            id,
-                                            existingReservation.roomId(),
-                                            existingReservation.userId(),
-                                            reservation.checkInDate(),
-                                            reservation.checkOutDate(),
-                                            existingReservation.status(),
-                                            reservation.totalPrice(),
-                                            reservation.specialRequests(),
-                                            existingReservation.createdAt(),
-                                            LocalDateTime.now()
-                                    );
-                                    return validateReservation(updatedReservation)
-                                            .then(reservationRepositoryPort.update(updatedReservation));
-                                });
-                    } else {
-                        Reservation updatedReservation = new Reservation(
-                                id,
-                                existingReservation.roomId(),
-                                existingReservation.userId(),
-                                reservation.checkInDate(),
-                                reservation.checkOutDate(),
-                                existingReservation.status(),
-                                reservation.totalPrice(),
-                                reservation.specialRequests(),
-                                existingReservation.createdAt(),
-                                LocalDateTime.now()
+                        validation = validation.then(
+                                reservationRepositoryPort.findOverlappingReservations(
+                                        existingReservation.roomId(),
+                                        reservation.checkInDate(),
+                                        reservation.checkOutDate())
+                                        .filter(r -> r.isActive() && !r.id().equals(id))
+                                        .hasElements()
+                                        .flatMap(hasOverlapping -> {
+                                            if (hasOverlapping) {
+                                                return Mono.error(new IllegalArgumentException(
+                                                        "La habitación no está disponible para las nuevas fechas"));
+                                            }
+                                            return Mono.empty();
+                                        })
                         );
-                        return validateReservation(updatedReservation)
-                                .then(reservationRepositoryPort.update(updatedReservation));
                     }
+
+                    return validation.then(reservationRepositoryPort.update(updatedReservation));
                 });
     }
 
@@ -228,16 +234,28 @@ public class ReservationService implements ReservationUseCasePort {
         if (reservation.checkOutDate() == null) {
             return Mono.error(new IllegalArgumentException("La fecha de check-out es requerida"));
         }
-        if (reservation.checkInDate().isAfter(reservation.checkOutDate())) {
+        if (!reservation.checkInDate().isBefore(reservation.checkOutDate())) {
             return Mono.error(new IllegalArgumentException(
                     "La fecha de check-in debe ser anterior a la fecha de check-out"));
         }
-        if (reservation.checkInDate().isBefore(LocalDateTime.now())) {
-            return Mono.error(new IllegalArgumentException(
-                    "La fecha de check-in no puede ser en el pasado"));
+        // Only validate future dates for new reservations (when checking in hasn't happened yet)
+        LocalDateTime now = LocalDateTime.now();
+        if (reservation.status() == null || reservation.status() == Reservation.ReservationStatus.PENDING) {
+            if (reservation.checkInDate().isBefore(now.minusHours(CHECK_IN_GRACE_PERIOD_HOURS))) {
+                return Mono.error(new IllegalArgumentException(
+                        "La fecha de check-in no puede ser en el pasado"));
+            }
         }
         if (reservation.totalPrice() == null || reservation.totalPrice() <= 0) {
             return Mono.error(new IllegalArgumentException("El precio total debe ser mayor que cero"));
+        }
+        // Validate max stay duration
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(
+                reservation.checkInDate().toLocalDate(), 
+                reservation.checkOutDate().toLocalDate());
+        if (daysBetween > MAX_RESERVATION_DAYS) {
+            return Mono.error(new IllegalArgumentException(
+                    "La duración máxima de la reserva es de " + MAX_RESERVATION_DAYS + " días"));
         }
         return Mono.empty();
     }

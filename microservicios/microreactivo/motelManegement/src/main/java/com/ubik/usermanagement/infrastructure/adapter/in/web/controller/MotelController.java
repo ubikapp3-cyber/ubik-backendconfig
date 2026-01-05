@@ -74,8 +74,13 @@ public class MotelController {
     @Operation(summary = "Listar todos los moteles", description = "Obtiene un listado de todos los moteles registrados")
     @ApiResponse(responseCode = "200", description = "Listado de moteles obtenido exitosamente")
     @GetMapping
-    public Flux<MotelResponse> getAllMotels() {
+    public Flux<MotelResponse> getAllMotels(
+            @RequestParam(defaultValue = "100") @Parameter(description = "Límite de resultados") int limit) {
+        if (limit <= 0 || limit > 1000) {
+            limit = 100;
+        }
         return motelUseCasePort.getAllMotels()
+                .take(limit)
                 .map(motelDtoMapper::toResponse);
     }
 

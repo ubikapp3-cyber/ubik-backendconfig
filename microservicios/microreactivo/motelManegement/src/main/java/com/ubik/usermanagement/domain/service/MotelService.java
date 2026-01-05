@@ -40,6 +40,9 @@ public class MotelService implements MotelUseCasePort {
 
     @Override
     public Flux<Motel> getMotelsByCity(String city) {
+        if (city == null || city.trim().isEmpty()) {
+            return Flux.error(new IllegalArgumentException("City parameter is required"));
+        }
         return motelRepositoryPort.findByCity(city);
     }
 

@@ -74,8 +74,13 @@ public class RoomController {
     @Operation(summary = "Listar todas las habitaciones", description = "Obtiene un listado de todas las habitaciones registradas")
     @ApiResponse(responseCode = "200", description = "Listado de habitaciones obtenido exitosamente")
     @GetMapping
-    public Flux<RoomResponse> getAllRooms() {
+    public Flux<RoomResponse> getAllRooms(
+            @RequestParam(defaultValue = "100") @Parameter(description = "Límite de resultados") int limit) {
+        if (limit <= 0 || limit > 1000) {
+            limit = 100;
+        }
         return roomUseCasePort.getAllRooms()
+                .take(limit)
                 .map(roomDtoMapper::toResponse);
     }
 

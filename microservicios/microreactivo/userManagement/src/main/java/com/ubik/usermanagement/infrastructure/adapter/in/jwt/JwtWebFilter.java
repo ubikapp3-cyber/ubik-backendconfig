@@ -40,9 +40,12 @@ public class JwtWebFilter {
             try {
                 Map<String, Object> claims = jwtAdapter.extractClaims(token);
                 String username = (String) claims.get("sub");
-                String role = (String) claims.get("role");
+                Object roleObj = claims.get("role");
+                
+                // Handle role as either Integer or String
+                String role = roleObj != null ? roleObj.toString() : null;
 
-                if (username != null && jwtAdapter.isTokenValid(token, username)) {
+                if (username != null && role != null && jwtAdapter.isTokenValid(token, username)) {
                     var auth = new UsernamePasswordAuthenticationToken(
                             username,
                             null,
@@ -53,6 +56,7 @@ public class JwtWebFilter {
                             .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
                 }
             } catch (Exception e) {
+                // Authentication failed, continue without security context
                 return chain.filter(exchange);
             }
 
