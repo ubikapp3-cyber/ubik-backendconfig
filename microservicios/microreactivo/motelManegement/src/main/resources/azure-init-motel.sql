@@ -19,6 +19,8 @@
 SET search_path TO public;
 
 -- Eliminar tablas si existen (para re-ejecución limpia)
+DROP TABLE IF EXISTS chat_messages CASCADE;
+DROP TABLE IF EXISTS chat_sessions CASCADE;
 DROP TABLE IF EXISTS room_service CASCADE;
 DROP TABLE IF EXISTS room_image CASCADE;
 DROP TABLE IF EXISTS service CASCADE;
@@ -336,6 +338,41 @@ BEGIN
         RAISE EXCEPTION '❌ Error: Algunos datos no fueron insertados correctamente';
     END IF;
 END $$;
+
+-- ============================================================================
+-- TABLAS DEL CHATBOT
+-- ============================================================================
+
+-- Tabla de sesiones de chat
+CREATE TABLE chat_sessions (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    user_role VARCHAR(50) NOT NULL,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_activity_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    context TEXT
+);
+
+-- Índices para chat_sessions
+CREATE INDEX idx_chat_sessions_user ON chat_sessions(user_id);
+CREATE INDEX idx_chat_sessions_status ON chat_sessions(status);
+
+-- Tabla de mensajes del chat
+CREATE TABLE chat_messages (
+    id BIGSERIAL PRIMARY KEY,
+    session_id BIGINT NOT NULL,
+    message TEXT NOT NULL,
+    response TEXT,
+    message_type VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
+);
+
+-- Índices para chat_messages
+CREATE INDEX idx_chat_messages_session ON chat_messages(session_id);
+CREATE INDEX idx_chat_messages_timestamp ON chat_messages(timestamp);
 
 -- ============================================================================
 -- SCRIPT COMPLETADO
