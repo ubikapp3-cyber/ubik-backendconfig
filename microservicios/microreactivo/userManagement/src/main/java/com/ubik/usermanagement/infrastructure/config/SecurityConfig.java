@@ -30,7 +30,6 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
-                        .frameOptions(frameOptions -> frameOptions.disable())
                         .cache(cache -> cache.disable())
                 )
                 .authorizeExchange(exchanges -> exchanges

@@ -10,7 +10,7 @@ public record UpdateUserRequest (
         Boolean anonymous,
 
         @Email(message = "Correo electrónico no válido")
-        @Size(max = 100, message = "Email must not exceed 100 characters")
+        @Size(max = 100, message = "El correo electrónico no debe exceder 100 caracteres")
         String email
 )
 {}
